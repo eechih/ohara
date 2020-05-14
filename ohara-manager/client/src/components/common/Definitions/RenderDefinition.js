@@ -121,9 +121,16 @@ const RenderDefinition = props => {
     // 1. ARRAY
     // 2. OBJECT_KEYS
     // 3. STRING
+    const valueTypesForSupport = [Type.ARRAY, Type.OBJECT_KEYS, Type.STRING];
+    const referencesForSupport = [
+      ReferenceEnum.TOPIC,
+      ReferenceEnum.FILE,
+      ReferenceEnum.NODE,
+    ];
+
     if (
-      includes([Type.ARRAY, Type.OBJECT_KEYS, Type.STRING], valueType) &&
-      reference !== ReferenceEnum.NONE
+      includes(referencesForSupport, reference) &&
+      includes(valueTypesForSupport, valueType)
     ) {
       const multiple =
         valueType === Type.ARRAY || valueType === Type.OBJECT_KEYS;
@@ -142,7 +149,7 @@ const RenderDefinition = props => {
             />
           );
         default:
-          return <Field {...fieldProps} component={Chooser} options={[]} />;
+          throw new Error(`Unsupported reference: ${reference}`);
       }
     } else {
       switch (valueType) {
