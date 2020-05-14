@@ -16,6 +16,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { size } from 'lodash';
 import Checkbox from '@material-ui/core/Checkbox';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -47,6 +48,12 @@ const Chooser = props => {
 
   const hasError = (touched || dirty) && error;
 
+  const placeholder = !multipleChoice
+    ? 'Please select item from the dropdown'
+    : size(value) === 0
+    ? 'Please select items from the dropdown'
+    : 'Select more';
+
   return (
     <Autocomplete
       ref={refs}
@@ -67,7 +74,7 @@ const Chooser = props => {
           helperText={hasError ? error : helperText}
           label={label}
           name={name}
-          placeholder="Choose"
+          placeholder={placeholder}
           required={required}
         />
       )}
