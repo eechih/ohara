@@ -77,6 +77,7 @@ const Chooser = props => {
             <Checkbox
               checked={selected}
               checkedIcon={checkedIcon}
+              color="primary"
               icon={icon}
             />
           )}
