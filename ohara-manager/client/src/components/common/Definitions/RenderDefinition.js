@@ -16,10 +16,11 @@
 
 import React from 'react';
 import { Field } from 'react-final-form';
-import { toNumber, isEmpty } from 'lodash';
+import { has, toNumber, isEmpty } from 'lodash';
 
 import BindingPort from './BindingPort';
 import BooleanDef from './BooleanDef';
+import Chooser from './Chooser';
 import Duration from './Duration';
 import IntDef from './IntDef';
 import JdbcTable from './JdbcTable';
@@ -53,6 +54,7 @@ const RenderDefinition = props => {
     def,
     topics = [],
     files,
+    nodes = [],
     defType,
     ref,
     fieldProps = {},
@@ -111,7 +113,20 @@ const RenderDefinition = props => {
       type: def.valueType === Type.BOOLEAN ? 'checkbox' : null,
     };
 
-    if (ref) ensuredFieldProps.refs = ref;
+    // For Chooser
+    if (has(params, 'getOptionLabel')) {
+      ensuredFieldProps.getOptionLabel = params.getOptionLabel;
+    }
+    if (has(params, 'multipleChoice')) {
+      ensuredFieldProps.multipleChoice = params.multipleChoice;
+    }
+    if (has(params, 'options')) {
+      ensuredFieldProps.options = params.options;
+    }
+
+    if (ref) {
+      ensuredFieldProps.refs = ref;
+    }
 
     return <Field {...ensuredFieldProps} />;
   };
@@ -199,6 +214,17 @@ const RenderDefinition = props => {
 
         case ReferenceEnum.FILE:
           return RenderField({ ...def, input: Reference, list: files });
+
+        case ReferenceEnum.NODE: {
+          return RenderField({
+            ...def,
+            input: Chooser,
+            multipleChoice:
+              def.valueType === Type.ARRAY ||
+              def.valueType === Type.OBJECT_KEYS,
+            options: nodes.map(node => node.hostname),
+          });
+        }
 
         default:
           return RenderField({ ...def, input: Reference });
