@@ -270,6 +270,7 @@ function FileTable(props) {
               />
             ),
           },
+          ...options?.customColumns,
           {
             title: 'Last modified',
             type: 'date',
@@ -288,7 +289,6 @@ function FileTable(props) {
               );
             },
           },
-          ...options?.customColumns,
           renderRowActions(),
         ]}
         data={data}
