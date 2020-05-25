@@ -15,9 +15,22 @@
  */
 
 import React, { useMemo, useState, useRef } from 'react';
-import { every, filter, find, map, some, reject } from 'lodash';
+import {
+  every,
+  filter,
+  find,
+  includes,
+  isEmpty,
+  map,
+  some,
+  reject,
+  toUpper,
+} from 'lodash';
+import Link from '@material-ui/core/Link';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { FileTable } from 'components/File';
+import * as context from 'context';
 import * as hooks from 'hooks';
 import { getKey } from 'utils/object';
 import WorkspaceFileSelectorDialog from '../../common/WorkspaceFileSelectorDialog';
@@ -27,6 +40,9 @@ function PluginTable() {
   const worker = hooks.useWorker();
   const workspace = hooks.useWorkspace();
   const updateWorkspace = hooks.useUpdateWorkspaceAction();
+  const pipelines = hooks.usePipelines();
+  const switchPipeline = hooks.useSwitchPipelineAction();
+  const { close: closeSettingsDialog } = context.useEditWorkspaceDialog();
 
   const documentation = useMemo(
     () =>
@@ -45,8 +61,15 @@ function PluginTable() {
       map(worker?.pluginKeys, pluginKey =>
         find(workspaceFiles, file => file.name === pluginKey.name),
       ),
-    );
-  }, [worker, workspaceFiles]);
+    ).map(file => {
+      return {
+        ...file,
+        pipelines: filter(pipelines, pipeline => {
+          return some(pipeline?.jarKeys, jarKey => jarKey.name === file?.name);
+        }),
+      };
+    });
+  }, [worker, workspaceFiles, pipelines]);
 
   const workspacePlugins = useMemo(() => {
     return workspace?.worker?.pluginKeys
@@ -122,6 +145,13 @@ function PluginTable() {
     }
   };
 
+  const handleLinkClick = pipelineClicked => {
+    if (pipelineClicked?.name) {
+      closeSettingsDialog();
+      switchPipeline(pipelineClicked.name);
+    }
+  };
+
   return (
     <>
       <FileTable
@@ -138,6 +168,41 @@ function PluginTable() {
           showDeleteIcon: false,
           showDownloadIcon: false,
           showRemoveIcon: true,
+          disabledRemoveIcon: rowData => !isEmpty(rowData?.pipelines),
+          removeTooltip: rowData =>
+            !isEmpty(rowData?.pipelines)
+              ? 'Cannot remove files used by pipeline'
+              : 'Remove file',
+          customColumns: [
+            {
+              title: 'Pipelines',
+              customFilterAndSearch: (filterValue, file) => {
+                const value = file?.pipelines
+                  ?.map(pipeline => pipeline?.name)
+                  .join();
+                return includes(toUpper(value), toUpper(filterValue));
+              },
+              render: file => {
+                return (
+                  <>
+                    {map(file?.pipelines, pipeline => (
+                      <div key={pipeline.name}>
+                        <Tooltip title="Click the link to switch to that pipeline">
+                          <Link
+                            component="button"
+                            variant="body2"
+                            onClick={() => handleLinkClick(pipeline)}
+                          >
+                            {pipeline.name}
+                          </Link>
+                        </Tooltip>
+                      </div>
+                    ))}
+                  </>
+                );
+              },
+            },
+          ],
         }}
         title="Plugins"
       />

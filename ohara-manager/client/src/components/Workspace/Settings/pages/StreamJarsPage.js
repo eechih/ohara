@@ -15,17 +15,33 @@
  */
 
 import React, { useMemo, useState, useRef } from 'react';
-import { every, filter, find, map, some, reject } from 'lodash';
+import {
+  every,
+  filter,
+  find,
+  includes,
+  isEmpty,
+  map,
+  reject,
+  some,
+  toUpper,
+} from 'lodash';
+import Link from '@material-ui/core/Link';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { FileTable } from 'components/File';
 import * as hooks from 'hooks';
+import * as context from 'context';
 import { getKey } from 'utils/object';
 import WorkspaceFileSelectorDialog from '../common/WorkspaceFileSelectorDialog';
 
 function StreamJarsPage() {
   const workspaceFiles = hooks.useFiles();
+  const pipelines = hooks.usePipelines();
   const workspace = hooks.useWorkspace();
   const updateWorkspace = hooks.useUpdateWorkspaceAction();
+  const switchPipeline = hooks.useSwitchPipelineAction();
+  const { close: closeSettingsDialog } = context.useEditWorkspaceDialog();
 
   const selectorDialogRef = useRef(null);
   const [isSelectorDialogOpen, setIsSelectorDialogOpen] = useState(false);
@@ -35,8 +51,15 @@ function StreamJarsPage() {
       map(workspace?.stream?.jarKeys, jarKey =>
         find(workspaceFiles, file => file.name === jarKey.name),
       ),
-    );
-  }, [workspace, workspaceFiles]);
+    ).map(file => {
+      return {
+        ...file,
+        pipelines: filter(pipelines, pipeline => {
+          return some(pipeline?.jarKeys, jarKey => jarKey.name === file?.name);
+        }),
+      };
+    });
+  }, [workspace, workspaceFiles, pipelines]);
 
   const updateStreamJarKeysToWorkspace = newJarKeys => {
     updateWorkspace({
@@ -99,6 +122,13 @@ function StreamJarsPage() {
     }
   };
 
+  const handleLinkClick = pipelineClicked => {
+    if (pipelineClicked?.name) {
+      closeSettingsDialog();
+      switchPipeline(pipelineClicked.name);
+    }
+  };
+
   return (
     <>
       <FileTable
@@ -112,6 +142,41 @@ function StreamJarsPage() {
           showDeleteIcon: false,
           showDownloadIcon: false,
           showRemoveIcon: true,
+          disabledRemoveIcon: rowData => !isEmpty(rowData?.pipelines),
+          removeTooltip: rowData =>
+            !isEmpty(rowData?.pipelines)
+              ? 'Cannot remove files used by pipeline'
+              : 'Remove file',
+          customColumns: [
+            {
+              title: 'Pipelines',
+              customFilterAndSearch: (filterValue, file) => {
+                const value = file?.pipelines
+                  ?.map(pipeline => pipeline?.name)
+                  .join();
+                return includes(toUpper(value), toUpper(filterValue));
+              },
+              render: file => {
+                return (
+                  <>
+                    {map(file?.pipelines, pipeline => (
+                      <div key={pipeline.name}>
+                        <Tooltip title="Click the link to switch to that pipeline">
+                          <Link
+                            component="button"
+                            variant="body2"
+                            onClick={() => handleLinkClick(pipeline)}
+                          >
+                            {pipeline.name}
+                          </Link>
+                        </Tooltip>
+                      </div>
+                    ))}
+                  </>
+                );
+              },
+            },
+          ],
         }}
         title="Stream jars"
       />
