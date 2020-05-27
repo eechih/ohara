@@ -16,7 +16,7 @@
 
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { capitalize, join, includes, some, toUpper } from 'lodash';
+import { capitalize, join, isFunction, includes, some, toUpper } from 'lodash';
 
 import { FileTable } from 'components/File';
 import * as hooks from 'hooks';
@@ -60,7 +60,9 @@ function WorkspaceFileTable(props) {
   return (
     <>
       <FileTable
-        files={workspaceFiles}
+        files={workspaceFiles.filter(file =>
+          isFunction(props?.filter) ? props.filter(file) : true,
+        )}
         onDelete={handleDelete}
         onSelectionChange={props.onSelectionChange}
         onUpload={handleUpload}
@@ -99,6 +101,7 @@ function WorkspaceFileTable(props) {
 }
 
 WorkspaceFileTable.propTypes = {
+  filter: PropTypes.func,
   onSelectionChange: PropTypes.func,
   options: PropTypes.shape({
     selection: PropTypes.bool,
@@ -108,6 +111,7 @@ WorkspaceFileTable.propTypes = {
 };
 
 WorkspaceFileTable.defaultProps = {
+  filter: null,
   onSelectionChange: () => {},
   options: {
     selection: false,

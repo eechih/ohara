@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   every,
   filter,
@@ -25,6 +25,8 @@ import {
   reject,
   some,
   toUpper,
+  union,
+  unionBy,
 } from 'lodash';
 import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -44,7 +46,6 @@ function SharedJarTable() {
   const switchPipeline = hooks.useSwitchPipelineAction();
   const { close: closeSettingsDialog } = context.useEditWorkspaceDialog();
 
-  const selectorDialogRef = useRef(null);
   const [isSelectorDialogOpen, setIsSelectorDialogOpen] = useState(false);
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
   const [activeFile, setActiveFile] = useState();
@@ -99,14 +100,6 @@ function SharedJarTable() {
         sharedJarKeys: newSharedJarKeys,
       },
     });
-
-    const newSelectedFiles = filter(
-      map(newSharedJarKeys, sharedJarKey =>
-        find(workspaceFiles, file => file.name === sharedJarKey.name),
-      ),
-    );
-
-    selectorDialogRef.current.setSelectedFiles(newSelectedFiles);
   };
 
   const handleAddIconClick = () => {
@@ -136,7 +129,12 @@ function SharedJarTable() {
   };
 
   const handleSelectorDialogConfirm = selectedFiles => {
-    const newSharedJarKeys = map(selectedFiles, file => getKey(file));
+    const selectedSharedJarKeys = map(selectedFiles, file => getKey(file));
+    const newSharedJarKeys = unionBy(
+      workspace?.worker?.sharedJarKeys,
+      selectedSharedJarKeys,
+      'name',
+    );
     updateSharedJarKeysToWorkspace(newSharedJarKeys);
     setIsSelectorDialogOpen(false);
   };
@@ -166,6 +164,15 @@ function SharedJarTable() {
       switchPipeline(pipelineClicked.name);
     }
   };
+
+  const exclusionList = useMemo(() => {
+    return union(
+      workerSharedJars.map(plugin => plugin.name),
+      workspaceSharedJars.map(plugin => plugin.name),
+    );
+  }, [workerSharedJars, workspaceSharedJars]);
+
+  const isExcluded = name => exclusionList.indexOf(name) > -1;
 
   return (
     <>
@@ -221,11 +228,8 @@ function SharedJarTable() {
         isOpen={isSelectorDialogOpen}
         onClose={() => setIsSelectorDialogOpen(false)}
         onConfirm={handleSelectorDialogConfirm}
-        ref={selectorDialogRef}
         tableProps={{
-          options: {
-            selectedFiles: workspaceSharedJars,
-          },
+          filter: file => !isExcluded(file.name),
           title: 'Files',
         }}
       />

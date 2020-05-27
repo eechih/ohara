@@ -107,7 +107,7 @@ const MuiTable = props => {
     return {
       cellStyle: style,
       headerStyle: style,
-      hidden: !selection,
+      hidden: !selection || data?.length === 0,
       render: rowData => (
         <Checkbox
           checked={some(selectedRows, selectedRowData =>

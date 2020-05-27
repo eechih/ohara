@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   every,
   filter,
@@ -25,6 +25,7 @@ import {
   reject,
   some,
   toUpper,
+  unionBy,
 } from 'lodash';
 import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -43,7 +44,6 @@ function StreamJarsPage() {
   const switchPipeline = hooks.useSwitchPipelineAction();
   const { close: closeSettingsDialog } = context.useEditWorkspaceDialog();
 
-  const selectorDialogRef = useRef(null);
   const [isSelectorDialogOpen, setIsSelectorDialogOpen] = useState(false);
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
   const [activeFile, setActiveFile] = useState();
@@ -77,14 +77,6 @@ function StreamJarsPage() {
         jarKeys: newJarKeys,
       },
     });
-
-    const newSelectedFiles = filter(
-      map(newJarKeys, jarKey =>
-        find(workspaceFiles, file => file.name === jarKey.name),
-      ),
-    );
-
-    selectorDialogRef.current.setSelectedFiles(newSelectedFiles);
   };
 
   const handleAddIconClick = () => {
@@ -109,7 +101,12 @@ function StreamJarsPage() {
   };
 
   const handleSelectorDialogConfirm = selectedFiles => {
-    const newJarKeys = map(selectedFiles, file => getKey(file));
+    const selectedJarKeys = map(selectedFiles, file => getKey(file));
+    const newJarKeys = unionBy(
+      workspace?.stream?.jarKeys,
+      selectedJarKeys,
+      'name',
+    );
     updateStreamJarKeysToWorkspace(newJarKeys);
     setIsSelectorDialogOpen(false);
   };
@@ -141,6 +138,9 @@ function StreamJarsPage() {
       switchPipeline(pipelineClicked.name);
     }
   };
+
+  const isExcluded = name =>
+    streamJars?.map(file => file.name)?.indexOf(name) > -1;
 
   return (
     <>
@@ -193,12 +193,8 @@ function StreamJarsPage() {
         isOpen={isSelectorDialogOpen}
         onClose={() => setIsSelectorDialogOpen(false)}
         onConfirm={handleSelectorDialogConfirm}
-        ref={selectorDialogRef}
         tableProps={{
-          options: {
-            selectedFiles: streamJars,
-            showDeleteIcon: true,
-          },
+          filter: file => !isExcluded(file.name),
           title: 'Files',
         }}
       />

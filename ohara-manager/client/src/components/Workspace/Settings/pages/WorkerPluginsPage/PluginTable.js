@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   every,
   filter,
@@ -25,6 +25,8 @@ import {
   reject,
   some,
   toUpper,
+  union,
+  unionBy,
 } from 'lodash';
 import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -44,7 +46,6 @@ function PluginTable() {
   const switchPipeline = hooks.useSwitchPipelineAction();
   const { close: closeSettingsDialog } = context.useEditWorkspaceDialog();
 
-  const selectorDialogRef = useRef(null);
   const [isSelectorDialogOpen, setIsSelectorDialogOpen] = useState(false);
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
   const [activeFile, setActiveFile] = useState();
@@ -101,14 +102,6 @@ function PluginTable() {
         pluginKeys: newPluginKeys,
       },
     });
-
-    const newSelectedFiles = filter(
-      map(newPluginKeys, pluginKey =>
-        find(workspaceFiles, file => file.name === pluginKey.name),
-      ),
-    );
-
-    selectorDialogRef.current.setSelectedFiles(newSelectedFiles);
   };
 
   const handleAddIconClick = () => {
@@ -138,7 +131,12 @@ function PluginTable() {
   };
 
   const handleSelectorDialogConfirm = selectedFiles => {
-    const newPluginKeys = map(selectedFiles, file => getKey(file));
+    const selectedPluginKeys = map(selectedFiles, file => getKey(file));
+    const newPluginKeys = unionBy(
+      workspace?.worker?.pluginKeys,
+      selectedPluginKeys,
+      'name',
+    );
     updatePluginKeysToWorkspace(newPluginKeys);
     setIsSelectorDialogOpen(false);
   };
@@ -168,6 +166,15 @@ function PluginTable() {
       switchPipeline(pipelineClicked.name);
     }
   };
+
+  const exclusionList = useMemo(() => {
+    return union(
+      workerPlugins.map(plugin => plugin.name),
+      workspacePlugins.map(plugin => plugin.name),
+    );
+  }, [workerPlugins, workspacePlugins]);
+
+  const isExcluded = name => exclusionList.indexOf(name) > -1;
 
   return (
     <>
@@ -223,11 +230,8 @@ function PluginTable() {
         isOpen={isSelectorDialogOpen}
         onClose={() => setIsSelectorDialogOpen(false)}
         onConfirm={handleSelectorDialogConfirm}
-        ref={selectorDialogRef}
         tableProps={{
-          options: {
-            selectedFiles: workspacePlugins,
-          },
+          filter: file => !isExcluded(file.name),
           title: 'Files',
         }}
       />

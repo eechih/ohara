@@ -14,40 +14,28 @@
  * limitations under the License.
  */
 
-import React, { useState, useImperativeHandle } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { isEqual, sortedUniq } from 'lodash';
-
 import { Dialog } from 'components/common/Dialog';
 import WorkspaceFileTable from './WorkspaceFileTable';
 
-const WorkspaceFileSelectorDialog = React.forwardRef((props, ref) => {
+const WorkspaceFileSelectorDialog = props => {
   const { isOpen, onClose, onConfirm, tableProps, title } = props;
-  const [selectedFiles, setSelectedFiles] = useState(
-    tableProps?.options?.selectedFiles,
-  );
-
-  const saveable = isEqual(
-    sortedUniq(selectedFiles),
-    sortedUniq(tableProps?.options?.selectedFiles),
-  );
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   const handleSelectionChange = selectFiles => {
     setSelectedFiles(selectFiles);
   };
 
   const handleCancel = () => {
-    setSelectedFiles(tableProps?.options?.selectedFiles);
+    setSelectedFiles([]);
     onClose();
   };
 
   const handleConfirm = () => {
     onConfirm(selectedFiles);
+    setSelectedFiles([]);
   };
-
-  useImperativeHandle(ref, () => ({
-    setSelectedFiles,
-  }));
 
   return (
     <Dialog
@@ -55,29 +43,27 @@ const WorkspaceFileSelectorDialog = React.forwardRef((props, ref) => {
       open={isOpen}
       onClose={handleCancel}
       onConfirm={handleConfirm}
-      confirmDisabled={saveable}
+      confirmDisabled={selectedFiles?.length === 0}
       confirmText="Save"
       maxWidth="md"
     >
       <WorkspaceFileTable
+        filter={tableProps?.filter}
         onSelectionChange={handleSelectionChange}
         options={{
           selection: true,
-          selectedFiles: tableProps?.options?.selectedFiles,
         }}
       />
     </Dialog>
   );
-});
+};
 
 WorkspaceFileSelectorDialog.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func,
   onConfirm: PropTypes.func,
   tableProps: PropTypes.shape({
-    options: PropTypes.shape({
-      selectedFiles: PropTypes.array,
-    }),
+    filter: PropTypes.func,
   }),
   title: PropTypes.string,
 };
