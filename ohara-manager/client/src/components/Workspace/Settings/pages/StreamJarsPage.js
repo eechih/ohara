@@ -15,6 +15,7 @@
  */
 
 import React, { useMemo, useState, useRef } from 'react';
+import styled, { css } from 'styled-components';
 import {
   every,
   filter,
@@ -28,12 +29,27 @@ import {
 } from 'lodash';
 import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
+import CheckIcon from '@material-ui/icons/Check';
+import WarningIcon from '@material-ui/icons/Warning';
 
 import { FileTable, FileRemoveDialog } from 'components/File';
+import { KIND } from 'const';
 import * as context from 'context';
 import * as hooks from 'hooks';
 import { getKey } from 'utils/object';
 import WorkspaceFileSelectorDialog from '../common/WorkspaceFileSelectorDialog';
+
+export const StyledCheckIcon = styled(CheckIcon)(
+  ({ theme }) => css`
+    color: ${theme.palette.success.main};
+  `,
+);
+
+export const StyledWarningIcon = styled(WarningIcon)(
+  ({ theme }) => css`
+    color: ${theme.palette.warning.main};
+  `,
+);
 
 function StreamJarsPage() {
   const workspaceFiles = hooks.useFiles();
@@ -55,7 +71,7 @@ function StreamJarsPage() {
       ),
     ).map((file) => {
       const classNames = file?.classInfos
-        ?.filter((classInfo) => classInfo?.classType === 'stream')
+        ?.filter((classInfo) => classInfo?.classType === KIND.stream)
         ?.map((classInfo) => classInfo?.className);
 
       return {
@@ -183,6 +199,25 @@ function StreamJarsPage() {
                   </>
                 );
               },
+            },
+            {
+              title: 'Valid',
+              render: (file) => {
+                const isValidStreamJar = some(
+                  file?.classInfos,
+                  (classInfo) => classInfo?.classType === KIND.stream,
+                );
+                return isValidStreamJar ? (
+                  <Tooltip title="This is a valid jar">
+                    <StyledCheckIcon fontSize="small" />
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="This is an invalid jar. No stream class found.">
+                    <StyledWarningIcon fontSize="small" />
+                  </Tooltip>
+                );
+              },
+              sorting: false,
             },
           ],
         }}
