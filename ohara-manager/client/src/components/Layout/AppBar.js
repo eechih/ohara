@@ -32,6 +32,7 @@ import { ReactComponent as Logo } from 'images/logo.svg';
 import { StyledAppBar } from './AppBarStyles';
 import { Tooltip } from 'components/common/Tooltip';
 import NodeListDialog from './NodeListDialog';
+import FakeCreateWorkspace from 'components/Workspace/FakeCreateWorkspace';
 
 // Since Mui doesn't provide a vertical AppBar, we're creating our own
 // therefore, this AppBar has nothing to do with Muis
@@ -54,6 +55,7 @@ const AppBar = () => {
   const createWorkspaceState = hooks.useCreateWorkspaceState();
   const switchWorkspace = hooks.useSwitchWorkspaceAction();
   const [isNodeListDialogOpen, setIsNodeListDialogOpen] = useState(false);
+  const [isFakeCreateWorkspace, setIsFakeCreateWorkspace] = useState(true);
 
   return (
     <StyledAppBar>
@@ -89,6 +91,14 @@ const AppBar = () => {
         </div>
 
         <div className="tools">
+          <Tooltip placement="right" title="Fake create a new workspace">
+            <IconButton
+              className="workspace-list item"
+              onClick={() => setIsFakeCreateWorkspace(true)}
+            >
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
           <Tooltip placement="right" title="Workspace list">
             <IconButton
               className="workspace-list item"
@@ -145,6 +155,10 @@ const AppBar = () => {
         mode={configuratorInfo?.mode}
         nodes={allNodes}
         onClose={() => setIsNodeListDialogOpen(false)}
+      />
+      <FakeCreateWorkspace
+        isOpen={isFakeCreateWorkspace}
+        onClose={() => setIsFakeCreateWorkspace(false)}
       />
     </StyledAppBar>
   );
