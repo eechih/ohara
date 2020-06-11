@@ -15,7 +15,6 @@
  */
 
 import React, { useMemo, useState, useRef } from 'react';
-import styled, { css } from 'styled-components';
 import {
   every,
   filter,
@@ -32,24 +31,13 @@ import Tooltip from '@material-ui/core/Tooltip';
 import CheckIcon from '@material-ui/icons/Check';
 import WarningIcon from '@material-ui/icons/Warning';
 
+import { IconWrapper } from 'components/common/Icon';
 import { FileTable, FileRemoveDialog } from 'components/File';
 import { KIND } from 'const';
 import * as context from 'context';
 import * as hooks from 'hooks';
 import { getKey } from 'utils/object';
 import WorkspaceFileSelectorDialog from '../common/WorkspaceFileSelectorDialog';
-
-export const StyledCheckIcon = styled(CheckIcon)(
-  ({ theme }) => css`
-    color: ${theme.palette.success.main};
-  `,
-);
-
-export const StyledWarningIcon = styled(WarningIcon)(
-  ({ theme }) => css`
-    color: ${theme.palette.warning.main};
-  `,
-);
 
 function StreamJarsPage() {
   const workspaceFiles = hooks.useFiles();
@@ -209,11 +197,15 @@ function StreamJarsPage() {
                 );
                 return isValidStreamJar ? (
                   <Tooltip title="This is a valid jar">
-                    <StyledCheckIcon fontSize="small" />
+                    <IconWrapper severity="success">
+                      <CheckIcon fontSize="small" />
+                    </IconWrapper>
                   </Tooltip>
                 ) : (
                   <Tooltip title="This is an invalid jar. No stream class found.">
-                    <StyledWarningIcon fontSize="small" />
+                    <IconWrapper severity="warning">
+                      <WarningIcon fontSize="small" />
+                    </IconWrapper>
                   </Tooltip>
                 );
               },
