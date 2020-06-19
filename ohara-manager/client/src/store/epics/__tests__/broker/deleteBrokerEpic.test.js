@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { throwError, of } from 'rxjs';
+import { of } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 
 import { LOG_LEVEL } from 'const';

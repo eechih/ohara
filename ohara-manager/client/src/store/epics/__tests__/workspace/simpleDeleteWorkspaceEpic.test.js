@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { throwError, of } from 'rxjs';
+import { of } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 
 import { LOG_LEVEL } from 'const';
@@ -80,6 +80,8 @@ it('delete workspace should be worked correctly', () => {
     expectSubscriptions(action$.subscriptions).toBe(subs);
 
     flush();
+
+    expect(spyGetAll).toHaveBeenCalled();
   });
 });
 
@@ -155,6 +157,8 @@ it('delete multiple workspaces should be worked correctly', () => {
     expectSubscriptions(action$.subscriptions).toBe(subs);
 
     flush();
+
+    expect(spyGetAll).toHaveBeenCalled();
   });
 });
 
@@ -205,6 +209,8 @@ it('delete same workspace within period should be created once only', () => {
     expectSubscriptions(action$.subscriptions).toBe(subs);
 
     flush();
+
+    expect(spyGetAll).toHaveBeenCalled();
   });
 });
 
