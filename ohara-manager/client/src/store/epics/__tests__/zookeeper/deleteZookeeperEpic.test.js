@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { throwError } from 'rxjs';
+import { throwError, of } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 
 import { LOG_LEVEL } from 'const';
@@ -39,12 +39,12 @@ it('delete zookeeper should be worked correctly', () => {
 
     const input = '   ^-a        ';
     const expected = '--a 999ms u';
-    const subs = '    ^----------';
+    const subs = ['   ^----------', '--^ 999ms !'];
 
     const action$ = hot(input, {
       a: {
         type: actions.deleteZookeeper.TRIGGER,
-        payload: zookeeperEntity,
+        payload: { values: zookeeperEntity },
       },
     });
     const output$ = deleteZookeeperEpic(action$);
@@ -76,17 +76,17 @@ it('delete multiple zookeepers should be worked correctly', () => {
 
     const input = '   ^-ab         ';
     const expected = '--ab 998ms uv';
-    const subs = '    ^------------';
+    const subs = ['   ^------------', '--^ 999ms !', '---^ 999ms !'];
     const anotherZookeeperEntity = { ...zookeeperEntity, name: 'zk01' };
 
     const action$ = hot(input, {
       a: {
         type: actions.deleteZookeeper.TRIGGER,
-        payload: zookeeperEntity,
+        payload: { values: zookeeperEntity },
       },
       b: {
         type: actions.deleteZookeeper.TRIGGER,
-        payload: anotherZookeeperEntity,
+        payload: { values: anotherZookeeperEntity },
       },
     });
     const output$ = deleteZookeeperEpic(action$);
@@ -130,12 +130,12 @@ it('delete same zookeeper within period should be created once only', () => {
 
     const input = '   ^-aa 10s a---';
     const expected = '--a 999ms u--';
-    const subs = '    ^------------';
+    const subs = ['   ^------------', '--^ 999ms !'];
 
     const action$ = hot(input, {
       a: {
         type: actions.deleteZookeeper.TRIGGER,
-        payload: zookeeperEntity,
+        payload: { values: zookeeperEntity },
       },
     });
     const output$ = deleteZookeeperEpic(action$);
@@ -163,25 +163,28 @@ it('delete same zookeeper within period should be created once only', () => {
 
 it('throw exception of delete zookeeper should also trigger event log action', () => {
   const error = {
-    status: -1,
-    data: {},
-    title: 'mock delete zookeeper failed',
+    meta: undefined,
+    title: `delete zookeeper exceeded max retry count`,
   };
-  const spyCreate = jest
-    .spyOn(zookeeperApi, 'remove')
-    .mockReturnValueOnce(throwError(error));
+  const spyGetAll = jest.spyOn(zookeeperApi, 'getAll').mockReturnValue(
+    of({
+      status: 200,
+      title: 'mock get all worker data',
+      data: [zookeeperEntity],
+    }),
+  );
 
   makeTestScheduler().run((helpers) => {
     const { hot, expectObservable, expectSubscriptions, flush } = helpers;
 
-    const input = '   ^-a-----|';
-    const expected = '--(aeu)-|';
-    const subs = '    ^-------!';
+    const input = '   ^-a             ';
+    const expected = '--a 19999ms (eu)';
+    const subs = ['   ^---------------', '--^ 19999ms !'];
 
     const action$ = hot(input, {
       a: {
         type: actions.deleteZookeeper.TRIGGER,
-        payload: zookeeperEntity,
+        payload: { values: zookeeperEntity },
       },
     });
     const output$ = deleteZookeeperEpic(action$);
@@ -209,6 +212,6 @@ it('throw exception of delete zookeeper should also trigger event log action', (
 
     flush();
 
-    expect(spyCreate).toHaveBeenCalled();
+    expect(spyGetAll).toHaveBeenCalled();
   });
 });

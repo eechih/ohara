@@ -26,6 +26,7 @@ import {
   retryWhen,
   concatMap,
   delay,
+  takeUntil,
 } from 'rxjs/operators';
 
 import { LOG_LEVEL } from 'const';
@@ -90,6 +91,7 @@ export default (action$) =>
             actions.createEventLog.trigger({ ...err, type: LOG_LEVEL.error }),
           ]);
         }),
+        takeUntil(action$.pipe(ofType(actions.deleteWorker.CANCEL))),
       );
     }),
   );

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { throwError } from 'rxjs';
+import { throwError, of } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 
 import { LOG_LEVEL } from 'const';
@@ -39,12 +39,12 @@ it('delete broker should be worked correctly', () => {
 
     const input = '   ^-a        ';
     const expected = '--a 999ms u';
-    const subs = '    ^----------';
+    const subs = ['   ^----------', '--^ 999ms !'];
 
     const action$ = hot(input, {
       a: {
         type: actions.deleteBroker.TRIGGER,
-        payload: brokerEntity,
+        payload: { values: brokerEntity },
       },
     });
     const output$ = deleteBrokerEpic(action$);
@@ -76,17 +76,17 @@ it('delete multiple brokers should be worked correctly', () => {
 
     const input = '   ^-ab         ';
     const expected = '--ab 998ms uv';
-    const subs = '    ^------------';
+    const subs = ['   ^------------', '--^ 999ms !', '---^ 999ms !'];
     const anotherBrokerEntity = { ...brokerEntity, name: 'bk01' };
 
     const action$ = hot(input, {
       a: {
         type: actions.deleteBroker.TRIGGER,
-        payload: brokerEntity,
+        payload: { values: brokerEntity },
       },
       b: {
         type: actions.deleteBroker.TRIGGER,
-        payload: anotherBrokerEntity,
+        payload: { values: anotherBrokerEntity },
       },
     });
     const output$ = deleteBrokerEpic(action$);
@@ -130,12 +130,12 @@ it('delete same broker within period should be deleted once only', () => {
 
     const input = '   ^-aa 10s a---';
     const expected = '--a 999ms u--';
-    const subs = '    ^------------';
+    const subs = ['   ^------------', '--^ 999ms !'];
 
     const action$ = hot(input, {
       a: {
         type: actions.deleteBroker.TRIGGER,
-        payload: brokerEntity,
+        payload: { values: brokerEntity },
       },
     });
     const output$ = deleteBrokerEpic(action$);
@@ -163,25 +163,28 @@ it('delete same broker within period should be deleted once only', () => {
 
 it('throw exception of delete broker should also trigger event log action', () => {
   const error = {
-    status: -1,
-    data: {},
-    title: 'mock delete broker failed',
+    meta: undefined,
+    title: `delete broker exceeded max retry count`,
   };
-  const spyCreate = jest
-    .spyOn(brokerApi, 'remove')
-    .mockReturnValueOnce(throwError(error));
+  const spyGetAll = jest.spyOn(brokerApi, 'getAll').mockReturnValue(
+    of({
+      status: 200,
+      title: 'mock get all broker data',
+      data: [brokerEntity],
+    }),
+  );
 
   makeTestScheduler().run((helpers) => {
     const { hot, expectObservable, expectSubscriptions, flush } = helpers;
 
-    const input = '   ^-a-----|';
-    const expected = '--(aeu)-|';
-    const subs = '    ^-------!';
+    const input = '   ^-a             ';
+    const expected = '--a 19999ms (eu)';
+    const subs = ['   ^---------------', '--^ 19999ms !'];
 
     const action$ = hot(input, {
       a: {
         type: actions.deleteBroker.TRIGGER,
-        payload: brokerEntity,
+        payload: { values: brokerEntity },
       },
     });
     const output$ = deleteBrokerEpic(action$);
@@ -209,6 +212,6 @@ it('throw exception of delete broker should also trigger event log action', () =
 
     flush();
 
-    expect(spyCreate).toHaveBeenCalled();
+    expect(spyGetAll).toHaveBeenCalled();
   });
 });

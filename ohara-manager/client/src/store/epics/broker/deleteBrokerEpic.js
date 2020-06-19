@@ -23,6 +23,7 @@ import {
   startWith,
   mergeMap,
   distinctUntilChanged,
+  takeUntil,
 } from 'rxjs/operators';
 
 import * as brokerApi from 'api/brokerApi';
@@ -60,6 +61,7 @@ export default (action$) =>
             actions.createEventLog.trigger({ ...err, type: LOG_LEVEL.error }),
           ]);
         }),
+        takeUntil(action$.pipe(ofType(actions.deleteBroker.CANCEL))),
       );
     }),
   );
