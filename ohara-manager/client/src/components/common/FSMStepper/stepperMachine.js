@@ -16,21 +16,29 @@
 
 import { Machine, assign } from 'xstate';
 
-export const machineConfig = {
-  id: 'Root',
+const config = {
+  id: 'stepper',
   initial: 'auto',
   context: {
+    activeStep: -1,
+    steps: [],
     forward: true,
-    activeIndex: -1,
-    activities: [],
+    error: null,
   },
   states: {
     idle: {
       on: {
-        RESUME: 'auto',
+        RESUME: {
+          target: 'auto',
+          actions: assign({ error: null }),
+        },
         REVERT: {
           target: 'auto',
-          actions: assign({ forward: (ctx) => !ctx.forward }),
+          actions: assign({ error: null, forward: (ctx) => !ctx.forward }),
+        },
+        RETRY: {
+          target: '#stepper.auto.loading',
+          actions: assign({ error: null }),
         },
       },
     },
@@ -42,10 +50,10 @@ export const machineConfig = {
             '': [
               {
                 target: 'loading',
-                actions: 'next',
-                cond: 'hasNext',
+                actions: 'toNextStep',
+                cond: 'hasNextStep',
               },
-              { target: '#Root.finish', actions: 'next' },
+              { target: '#stepper.finish', actions: 'toNextStep' },
             ],
           },
         },
@@ -54,32 +62,22 @@ export const machineConfig = {
             id: 'fireAction',
             src: 'fireAction',
             onError: {
-              target: '#Root.auto.failure',
+              target: '#stepper.idle',
               actions: 'fireActionFailure',
             },
             onDone: {
-              target: '#Root.auto.success',
+              target: '#stepper.auto',
               actions: 'fireActionSuccess',
             },
           },
           on: {
-            SUSPEND: 'cancelConfirming',
-          },
-        },
-        success: {
-          after: {
-            0: 'unknown',
-          },
-        },
-        failure: {
-          on: {
-            RETRY: 'loading',
+            PAUSE: 'cancelConfirming',
           },
         },
         cancelConfirming: {
           on: {
             AGREE: 'cancelling',
-            DISAGREE: '#Root.auto.loading',
+            DISAGREE: '#stepper.auto.loading',
           },
         },
         cancelling: {
@@ -87,11 +85,11 @@ export const machineConfig = {
             id: 'cancelAction',
             src: 'cancelAction',
             onError: {
-              target: '#Root.idle',
+              target: '#stepper.idle',
               actions: 'cancelActionFailure',
             },
             onDone: {
-              target: '#Root.idle',
+              target: '#stepper.idle',
               actions: 'cancelActionSuccess',
             },
           },
@@ -111,10 +109,10 @@ export const machineConfig = {
 };
 
 const actions = {
-  next: assign({
-    activeIndex: (ctx) => {
-      const { activeIndex, forward } = ctx;
-      return forward ? activeIndex + 1 : activeIndex - 1;
+  toNextStep: assign({
+    activeStep: (ctx) => {
+      const { activeStep, forward } = ctx;
+      return forward ? activeStep + 1 : activeStep - 1;
     },
   }),
   fireActionSuccess: () => {}, // TODO: May need to update some context
@@ -128,11 +126,10 @@ const actions = {
 };
 
 const guards = {
-  hasNext: (ctx) => {
-    const { activeIndex, activities, forward } = ctx;
-    const nextActiveIndex = forward ? activeIndex + 1 : activeIndex - 1;
-    const nextActivity = activities[nextActiveIndex];
-    return !!nextActivity;
+  hasNextStep: (ctx) => {
+    const { activeStep, steps, forward } = ctx;
+    const nextStep = forward ? steps[activeStep + 1] : steps[activeStep - 1];
+    return !!nextStep;
   },
 };
 
@@ -145,26 +142,29 @@ const delayFireAction = (action, delay = 0) => {
 
 const services = {
   fireAction: (ctx) => {
-    const { activeIndex, activities, forward } = ctx;
-    const activity = activities[activeIndex];
-    const { action, delay = 0, revertAction } = activity;
+    const { activeStep, steps, forward } = ctx;
+    const step = steps[activeStep];
+    const { action, delay = 0, revertAction } = step;
     return forward
       ? delayFireAction(action, delay)
       : delayFireAction(revertAction, delay);
   },
   cancelAction: (ctx) => {
-    const { activeIndex, activities, forward } = ctx;
-    const activity = activities[activeIndex];
+    const { activeStep, steps, forward } = ctx;
+    const step = steps[activeStep];
     if (forward) {
-      return activity?.revertAction ? activity.revertAction() : null;
+      return step?.revertAction ? step.revertAction() : null;
     } else {
-      return activity?.action ? activity.action() : null;
+      return step?.action ? step.action() : null;
     }
   },
 };
 
-export default Machine(machineConfig, {
+const stepperMachine = Machine(config, {
   actions,
   guards,
   services,
 });
+
+export default stepperMachine;
+export { config };

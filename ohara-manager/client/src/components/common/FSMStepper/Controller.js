@@ -22,22 +22,23 @@ import Button from '@material-ui/core/Button';
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import StopIcon from '@material-ui/icons/Stop';
-import ReplayIcon from '@material-ui/icons/Replay';
+import RefreshIcon from '@material-ui/icons/Refresh';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 
 import ConfirmDialog from 'components/common/Dialog/DeleteDialog';
 
 const Controller = (props) => {
-  const { rollback: allowRollback, state, send } = props;
-  const isForwardProcessing = !!state?.context?.forward;
+  const { revertible, pauseable, state, send } = props;
 
-  const showResumeButton = allowRollback && state.matches('idle');
-  const showRetryButton = state.matches('auto.failure');
-  const showRollbackButton =
-    allowRollback &&
-    isForwardProcessing &&
-    (state.matches('idle') || state.matches('finish'));
-  const showSuspendButton = allowRollback && state.matches('auto');
+  const isIdle = state.matches('idle');
+  const isAuto = state.matches('auto');
+  const isForward = !!state?.context?.forward;
+  const hasError = !!state?.context?.error;
+
+  const showRetryButton = isIdle && hasError;
+  const showRevertButton = revertible && isIdle && hasError && isForward;
+  const showPauseButton = pauseable && isAuto;
+  const showResumeButton = pauseable && isIdle && !hasError;
 
   return (
     <>
@@ -48,26 +49,15 @@ const Controller = (props) => {
         justify="center"
         spacing={2}
       >
-        {showSuspendButton && (
+        {showRevertButton && (
           <Grid item>
             <Button
               color="primary"
-              onClick={() => send('SUSPEND')}
-              startIcon={<StopIcon />}
+              data-testid="stepper-revert-button"
+              onClick={() => send('REVERT')}
+              startIcon={<ArrowBackIcon />}
             >
-              SUSPEND
-            </Button>
-          </Grid>
-        )}
-
-        {showResumeButton && (
-          <Grid item>
-            <Button
-              color="primary"
-              onClick={() => send('RESUME')}
-              startIcon={<PlayArrowIcon />}
-            >
-              RESUME
+              ROLLBACK
             </Button>
           </Grid>
         )}
@@ -76,22 +66,37 @@ const Controller = (props) => {
           <Grid item>
             <Button
               color="primary"
+              data-testid="stepper-retry-button"
               onClick={() => send('RETRY')}
-              startIcon={<ReplayIcon />}
+              startIcon={<RefreshIcon />}
             >
               RETRY
             </Button>
           </Grid>
         )}
 
-        {showRollbackButton && (
+        {showPauseButton && (
           <Grid item>
             <Button
               color="primary"
-              onClick={() => send('REVERT')}
-              startIcon={<ArrowBackIcon />}
+              data-testid="stepper-pause-button"
+              onClick={() => send('PAUSE')}
+              startIcon={<StopIcon />}
             >
-              REVERT
+              PAUSE
+            </Button>
+          </Grid>
+        )}
+
+        {showResumeButton && (
+          <Grid item>
+            <Button
+              color="primary"
+              data-testid="stepper-resume-button"
+              onClick={() => send('RESUME')}
+              startIcon={<PlayArrowIcon />}
+            >
+              RESUME
             </Button>
           </Grid>
         )}
@@ -114,21 +119,23 @@ const Controller = (props) => {
 };
 
 Controller.propTypes = {
-  rollback: PropTypes.bool,
   state: PropTypes.shape({
     context: PropTypes.shape({
-      activeIndex: PropTypes.number,
-      activities: PropTypes.array,
-      error: PropTypes.object,
+      activeStep: PropTypes.number,
+      steps: PropTypes.array,
       forward: PropTypes.bool,
+      error: PropTypes.object,
     }),
     matches: PropTypes.func,
   }).isRequired,
+  pauseable: PropTypes.bool,
+  revertible: PropTypes.bool,
   send: PropTypes.func.isRequired,
 };
 
 Controller.defaultProps = {
-  rollback: false,
+  pauseable: false,
+  revertible: false,
 };
 
 export default Controller;

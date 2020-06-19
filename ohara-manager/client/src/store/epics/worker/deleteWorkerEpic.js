@@ -30,6 +30,7 @@ import {
 
 import { LOG_LEVEL } from 'const';
 import * as workerApi from 'api/workerApi';
+import { deleteWorker } from 'observables';
 import * as actions from 'store/actions';
 import { getId } from 'utils/object';
 
@@ -74,16 +75,21 @@ export default (action$) =>
     ofType(actions.deleteWorker.TRIGGER),
     map((action) => action.payload),
     distinctUntilChanged(),
-    mergeMap((params) =>
-      deleteWorker$(params).pipe(
-        catchError((err) =>
-          from([
-            actions.deleteWorker.failure(
-              merge(err, { workerId: getId(params) }),
-            ),
+    mergeMap(({ values, resolve, reject }) => {
+      const workerId = getId(values);
+      return deleteWorker(values).pipe(
+        map(() => {
+          if (resolve) resolve();
+          return actions.deleteWorker.success({ workerId });
+        }),
+        startWith(actions.deleteWorker.request({ workerId })),
+        catchError((err) => {
+          if (reject) reject(err);
+          return from([
+            actions.deleteWorker.failure(merge(err, { workerId })),
             actions.createEventLog.trigger({ ...err, type: LOG_LEVEL.error }),
-          ]),
-        ),
-      ),
-    ),
+          ]);
+        }),
+      );
+    }),
   );
