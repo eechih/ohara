@@ -17,9 +17,8 @@
 import { throwError, zip } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { retryBackoff } from 'backoff-rxjs';
-import { size, some } from 'lodash';
 import { ObjectKey } from 'api/apiInterface/basicInterface';
-import { SERVICE_STATE, ClusterData } from 'api/apiInterface/clusterInterface';
+import { SERVICE_STATE } from 'api/apiInterface/clusterInterface';
 import * as zookeeperApi from 'api/zookeeperApi';
 import { deferApi } from './internal/deferApi';
 import { isServiceRunning } from './utils';
@@ -97,33 +96,5 @@ export function stopZookeeper(key: ObjectKey) {
 }
 
 export function deleteZookeeper(key: ObjectKey) {
-  return zip(
-    // attempt to delete at intervals
-    deferApi(() => zookeeperApi.remove(key)),
-    // wait until the service does not exist
-    deferApi(() => zookeeperApi.getAll({ group: key.group })).pipe(
-      map((res) => {
-        if (
-          size(res.data) > 0 &&
-          some(res.data, (cluster: ClusterData) => cluster.name === key.name)
-        ) {
-          throw res;
-        }
-        return res.data;
-      }),
-    ),
-  ).pipe(
-    // retry every 2 seconds, up to 10 times
-    retryBackoff({
-      initialInterval: 2000,
-      maxRetries: 10,
-      maxInterval: 2000,
-    }),
-    catchError((error) =>
-      throwError({
-        meta: error?.meta,
-        title: 'delete zookeeper exceeded max retry count',
-      }),
-    ),
-  );
+  return deferApi(() => zookeeperApi.remove(key));
 }

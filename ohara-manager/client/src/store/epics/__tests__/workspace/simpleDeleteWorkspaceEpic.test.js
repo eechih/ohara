@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { of } from 'rxjs';
+import { throwError } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 
 import { LOG_LEVEL } from 'const';
@@ -34,13 +34,6 @@ const makeTestScheduler = () =>
   });
 
 it('delete workspace should be worked correctly', () => {
-  const spyGetAll = jest.spyOn(workspaceApi, 'getAll').mockReturnValue(
-    of({
-      status: 200,
-      title: 'mock get all workspace data',
-      data: [],
-    }),
-  );
   makeTestScheduler().run((helpers) => {
     const { hot, expectObservable, expectSubscriptions, flush } = helpers;
 
@@ -80,19 +73,10 @@ it('delete workspace should be worked correctly', () => {
     expectSubscriptions(action$.subscriptions).toBe(subs);
 
     flush();
-
-    expect(spyGetAll).toHaveBeenCalled();
   });
 });
 
 it('delete multiple workspaces should be worked correctly', () => {
-  const spyGetAll = jest.spyOn(workspaceApi, 'getAll').mockReturnValue(
-    of({
-      status: 200,
-      title: 'mock get all workspace data',
-      data: [],
-    }),
-  );
   makeTestScheduler().run((helpers) => {
     const { hot, expectObservable, expectSubscriptions, flush } = helpers;
 
@@ -157,19 +141,10 @@ it('delete multiple workspaces should be worked correctly', () => {
     expectSubscriptions(action$.subscriptions).toBe(subs);
 
     flush();
-
-    expect(spyGetAll).toHaveBeenCalled();
   });
 });
 
 it('delete same workspace within period should be created once only', () => {
-  const spyGetAll = jest.spyOn(workspaceApi, 'getAll').mockReturnValue(
-    of({
-      status: 200,
-      title: 'mock get all workspace data',
-      data: [],
-    }),
-  );
   makeTestScheduler().run((helpers) => {
     const { hot, expectObservable, expectSubscriptions, flush } = helpers;
 
@@ -209,31 +184,25 @@ it('delete same workspace within period should be created once only', () => {
     expectSubscriptions(action$.subscriptions).toBe(subs);
 
     flush();
-
-    expect(spyGetAll).toHaveBeenCalled();
   });
 });
 
 it('throw exception of delete workspace should also trigger event log action', () => {
   const error = {
-    meta: undefined,
-    title: `delete workspace exceeded max retry count`,
+    status: -1,
+    data: {},
+    title: 'mock delete workspace failed',
   };
-
-  const spyGetAll = jest.spyOn(workspaceApi, 'getAll').mockReturnValue(
-    of({
-      status: 200,
-      title: 'mock get all workspace data',
-      data: [workspaceEntity],
-    }),
-  );
+  const spyDelete = jest
+    .spyOn(workspaceApi, 'remove')
+    .mockReturnValue(throwError(error));
 
   makeTestScheduler().run((helpers) => {
     const { hot, expectObservable, expectSubscriptions, flush } = helpers;
 
-    const input = '   ^-a             ';
-    const expected = '--a 19999ms (eu)';
-    const subs = ['   ^---------------', '--^ 19999ms !'];
+    const input = '   ^-a-----|';
+    const expected = '--(aeu)-|';
+    const subs = ['   ^-------!', '--(^!)'];
 
     const action$ = hot(input, {
       a: {
@@ -266,6 +235,6 @@ it('throw exception of delete workspace should also trigger event log action', (
 
     flush();
 
-    expect(spyGetAll).toHaveBeenCalled();
+    expect(spyDelete).toHaveBeenCalled();
   });
 });

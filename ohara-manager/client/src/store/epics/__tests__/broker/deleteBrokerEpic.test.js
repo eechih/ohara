@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { of } from 'rxjs';
+import { throwError } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 
 import { LOG_LEVEL } from 'const';
@@ -163,23 +163,20 @@ it('delete same broker within period should be deleted once only', () => {
 
 it('throw exception of delete broker should also trigger event log action', () => {
   const error = {
-    meta: undefined,
-    title: `delete broker exceeded max retry count`,
+    status: -1,
+    data: {},
+    title: 'mock delete broker failed',
   };
-  const spyGetAll = jest.spyOn(brokerApi, 'getAll').mockReturnValue(
-    of({
-      status: 200,
-      title: 'mock get all broker data',
-      data: [brokerEntity],
-    }),
-  );
+  const spyDelete = jest
+    .spyOn(brokerApi, 'remove')
+    .mockReturnValue(throwError(error));
 
   makeTestScheduler().run((helpers) => {
     const { hot, expectObservable, expectSubscriptions, flush } = helpers;
 
-    const input = '   ^-a             ';
-    const expected = '--a 19999ms (eu)';
-    const subs = ['   ^---------------', '--^ 19999ms !'];
+    const input = '   ^-a-----|';
+    const expected = '--(aeu)-|';
+    const subs = ['   ^-------!', '--(^!)'];
 
     const action$ = hot(input, {
       a: {
@@ -212,6 +209,6 @@ it('throw exception of delete broker should also trigger event log action', () =
 
     flush();
 
-    expect(spyGetAll).toHaveBeenCalled();
+    expect(spyDelete).toHaveBeenCalled();
   });
 });

@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-import { throwError, zip } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
-import { retryBackoff } from 'backoff-rxjs';
-import { size, some } from 'lodash';
-import { ObjectKey, ObjectData } from 'api/apiInterface/basicInterface';
+import { map } from 'rxjs/operators';
+import { ObjectKey } from 'api/apiInterface/basicInterface';
 import * as workspaceApi from 'api/workspaceApi';
 import { deferApi } from './internal/deferApi';
 
@@ -29,34 +26,5 @@ export function createWorkspace(values: any) {
 }
 
 export function deleteWorkspace(key: ObjectKey) {
-  return zip(
-    // attempt to delete at intervals
-    deferApi(() => workspaceApi.remove(key)),
-    // wait until the workspace does not exist
-    deferApi(() => workspaceApi.getAll({ group: key.group })).pipe(
-      map((res) => {
-        if (
-          size(res.data) > 0 &&
-          some(res.data, (object: ObjectData) => object.name === key.name)
-        ) {
-          throw res;
-        }
-        return res.data;
-      }),
-    ),
-  ).pipe(
-    map(([, data]) => data),
-    // retry every 2 seconds, up to 10 times
-    retryBackoff({
-      initialInterval: 2000,
-      maxRetries: 10,
-      maxInterval: 2000,
-    }),
-    catchError((error) =>
-      throwError({
-        meta: error?.meta,
-        title: 'delete workspace exceeded max retry count',
-      }),
-    ),
-  );
+  return deferApi(() => workspaceApi.remove(key));
 }

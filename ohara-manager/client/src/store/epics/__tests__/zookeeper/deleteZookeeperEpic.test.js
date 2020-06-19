@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { of } from 'rxjs';
+import { throwError } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 
 import { LOG_LEVEL } from 'const';
@@ -163,23 +163,20 @@ it('delete same zookeeper within period should be created once only', () => {
 
 it('throw exception of delete zookeeper should also trigger event log action', () => {
   const error = {
-    meta: undefined,
-    title: `delete zookeeper exceeded max retry count`,
+    status: -1,
+    data: {},
+    title: 'mock delete zookeeper failed',
   };
-  const spyGetAll = jest.spyOn(zookeeperApi, 'getAll').mockReturnValue(
-    of({
-      status: 200,
-      title: 'mock get all worker data',
-      data: [zookeeperEntity],
-    }),
-  );
+  const spyDelete = jest
+    .spyOn(zookeeperApi, 'remove')
+    .mockReturnValue(throwError(error));
 
   makeTestScheduler().run((helpers) => {
     const { hot, expectObservable, expectSubscriptions, flush } = helpers;
 
-    const input = '   ^-a             ';
-    const expected = '--a 19999ms (eu)';
-    const subs = ['   ^---------------', '--^ 19999ms !'];
+    const input = '   ^-a-----|';
+    const expected = '--(aeu)-|';
+    const subs = ['   ^-------!', '--(^!)'];
 
     const action$ = hot(input, {
       a: {
@@ -212,6 +209,6 @@ it('throw exception of delete zookeeper should also trigger event log action', (
 
     flush();
 
-    expect(spyGetAll).toHaveBeenCalled();
+    expect(spyDelete).toHaveBeenCalled();
   });
 });
