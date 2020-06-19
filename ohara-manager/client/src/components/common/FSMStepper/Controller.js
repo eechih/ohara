@@ -21,24 +21,17 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import StopIcon from '@material-ui/icons/Stop';
 import RefreshIcon from '@material-ui/icons/Refresh';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-
-import ConfirmDialog from 'components/common/Dialog/DeleteDialog';
 
 const Controller = (props) => {
-  const { revertible, pauseable, state, send } = props;
+  const { revertible, state, send } = props;
 
   const isIdle = state.matches('idle');
-  const isAuto = state.matches('auto');
   const isForward = !!state?.context?.forward;
   const hasError = !!state?.context?.error;
 
   const showRetryButton = isIdle && hasError;
   const showRevertButton = revertible && isIdle && hasError && isForward;
-  const showPauseButton = pauseable && isAuto;
-  const showResumeButton = pauseable && isIdle && !hasError;
 
   return (
     <>
@@ -74,46 +67,7 @@ const Controller = (props) => {
             </Button>
           </Grid>
         )}
-
-        {showPauseButton && (
-          <Grid item>
-            <Button
-              color="primary"
-              data-testid="stepper-pause-button"
-              onClick={() => send('PAUSE')}
-              startIcon={<StopIcon />}
-            >
-              PAUSE
-            </Button>
-          </Grid>
-        )}
-
-        {showResumeButton && (
-          <Grid item>
-            <Button
-              color="primary"
-              data-testid="stepper-resume-button"
-              onClick={() => send('RESUME')}
-              startIcon={<PlayArrowIcon />}
-            >
-              RESUME
-            </Button>
-          </Grid>
-        )}
       </Grid>
-      <ConfirmDialog
-        cancelText="Disagree"
-        confirmText="Agree"
-        content="Do you want to suspend?"
-        isWorking={state.matches('auto.cancelling')}
-        onClose={() => send('DISAGREE')}
-        onConfirm={() => send('AGREE')}
-        open={
-          state.matches('auto.cancelConfirming') ||
-          state.matches('auto.cancelling')
-        }
-        title="Do you want to suspend?"
-      />
     </>
   );
 };
@@ -128,13 +82,11 @@ Controller.propTypes = {
     }),
     matches: PropTypes.func,
   }).isRequired,
-  pauseable: PropTypes.bool,
   revertible: PropTypes.bool,
   send: PropTypes.func.isRequired,
 };
 
 Controller.defaultProps = {
-  pauseable: false,
   revertible: false,
 };
 

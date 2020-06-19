@@ -28,7 +28,7 @@ import stepperMachine, {
 import Styles from './Styles';
 
 const FSMStepper = (props) => {
-  const { steps, onClose, revertible, pauseable, showLog } = props;
+  const { steps, onClose, revertible, showLog } = props;
   const [state, send] = useMachine(
     stepperMachine.withContext({ ...stepperMachineConfig.context, steps }),
   );
@@ -52,7 +52,6 @@ const FSMStepper = (props) => {
       />
       <Controller
         onClose={onClose}
-        pauseable={pauseable}
         revertible={revertible}
         send={send}
         state={state}
@@ -73,14 +72,12 @@ FSMStepper.propTypes = {
     }),
   ).isRequired,
   revertible: PropTypes.bool,
-  pauseable: PropTypes.bool,
   showLog: PropTypes.bool,
   onClose: PropTypes.func,
 };
 
 FSMStepper.defaultProps = {
   revertible: false,
-  pauseable: false,
   showLog: false,
   onClose: () => {},
 };

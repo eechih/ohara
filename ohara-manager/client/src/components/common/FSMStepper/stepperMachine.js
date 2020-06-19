@@ -28,10 +28,6 @@ const config = {
   states: {
     idle: {
       on: {
-        RESUME: {
-          target: 'auto',
-          actions: assign({ error: null }),
-        },
         REVERT: {
           target: 'auto',
           actions: assign({ error: null, forward: (ctx) => !ctx.forward }),
@@ -70,29 +66,6 @@ const config = {
               actions: 'fireActionSuccess',
             },
           },
-          on: {
-            PAUSE: 'cancelConfirming',
-          },
-        },
-        cancelConfirming: {
-          on: {
-            AGREE: 'cancelling',
-            DISAGREE: '#stepper.auto.loading',
-          },
-        },
-        cancelling: {
-          invoke: {
-            id: 'cancelAction',
-            src: 'cancelAction',
-            onError: {
-              target: '#stepper.idle',
-              actions: 'cancelActionFailure',
-            },
-            onDone: {
-              target: '#stepper.idle',
-              actions: 'cancelActionSuccess',
-            },
-          },
         },
       },
     },
@@ -117,10 +90,6 @@ const actions = {
   }),
   fireActionSuccess: () => {}, // TODO: May need to update some context
   fireActionFailure: assign((ctx, evt) => {
-    ctx.error = evt;
-  }),
-  cancelActionSuccess: () => {},
-  cancelActionFailure: assign((ctx, evt) => {
     ctx.error = evt;
   }),
 };
@@ -148,15 +117,6 @@ const services = {
     return forward
       ? delayFireAction(action, delay)
       : delayFireAction(revertAction, delay);
-  },
-  cancelAction: (ctx) => {
-    const { activeStep, steps, forward } = ctx;
-    const step = steps[activeStep];
-    if (forward) {
-      return step?.revertAction ? step.revertAction() : null;
-    } else {
-      return step?.action ? step.action() : null;
-    }
   },
 };
 
