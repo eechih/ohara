@@ -37,28 +37,22 @@ const Settings = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
   const scrollRef = React.useRef(null);
 
-  const openDeleteWorkspace = hooks.useOpenDeleteWorkspaceDialogAction();
-  const deleteWorkspace = hooks.useDeleteWorkspaceAction();
   const openRestartWorkspace = hooks.useOpenRestartWorkspaceDialogAction();
   const restartWorkspace = hooks.useRestartWorkspaceAction();
   const hasRunningServices = hooks.useHasRunningServices();
   const workspace = hooks.useWorkspace();
   const { shouldBeRestartWorkspace } = hooks.useShouldBeRestartWorkspace();
 
+  const [isWorkspaceDeleting, setIsWorkspaceDeleting] = React.useState(false);
+
+  const deleteWorkspace = () => setIsWorkspaceDeleting(true);
+
   const resetSelectedItem = () => {
     setSelectedComponent(null);
   };
 
   const { menu, sections } = useConfig({
-    openDeleteProgressDialog: () => {
-      resetSelectedItem();
-      openDeleteWorkspace();
-      deleteWorkspace({
-        // after delete workspace
-        // this Settings Dialog should be closed
-        onSuccess: () => closeEditWorkspaceDialog(),
-      });
-    },
+    deleteWorkspace,
     openRestartWorkspaceProgressDialog: () => {
       resetSelectedItem();
       openRestartWorkspace();
@@ -155,7 +149,13 @@ const Settings = () => {
           selectedComponent={selectedComponent}
         />
         <RestartWorkspace />
-        <DeleteWorkspace />
+        <DeleteWorkspace
+          isOpen={isWorkspaceDeleting}
+          onClose={() => {
+            setIsWorkspaceDeleting(false);
+            handleClose();
+          }}
+        />
 
         <Dialog
           confirmText="OK"

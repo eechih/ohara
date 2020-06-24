@@ -68,14 +68,14 @@ export const useUpdateWorkspaceAction = () => {
   );
 };
 
-export const useSimpleDeleteWorkspaceAction = () => {
+export const useDeleteWorkspaceAction = () => {
   const dispatch = useDispatch();
   const group = hooks.useWorkspaceGroup();
   return useCallback(
     (name) =>
       new Promise((resolve, reject) =>
         dispatch(
-          actions.simpleDeleteWorkspace.trigger({
+          actions.deleteWorkspace.trigger({
             values: { group, name },
             resolve,
             reject,

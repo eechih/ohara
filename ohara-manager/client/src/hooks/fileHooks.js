@@ -65,6 +65,23 @@ export const useDeleteFileAction = () => {
   );
 };
 
+export const useDeleteFilesAction = () => {
+  const dispatch = useDispatch();
+  return useCallback(
+    (workspaceKey) =>
+      new Promise((resolve, reject) =>
+        dispatch(
+          actions.deleteFiles.trigger({
+            values: { workspaceKey },
+            resolve,
+            reject,
+          }),
+        ),
+      ),
+    [dispatch],
+  );
+};
+
 export const useFiles = () => {
   const group = useFileGroup();
   const isLoaded = useIsFileLoaded();

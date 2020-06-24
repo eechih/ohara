@@ -89,6 +89,26 @@ export const useDeleteStreamAction = () => {
   );
 };
 
+export const useDeleteStreamsAction = () => {
+  const dispatch = useDispatch();
+  const workspaceGroup = hooks.useWorkspaceGroup();
+  return useCallback(
+    (workspaceName) =>
+      new Promise((resolve, reject) =>
+        dispatch(
+          actions.deleteStreams.trigger({
+            values: {
+              workspaceKey: { name: workspaceName, group: workspaceGroup },
+            },
+            resolve,
+            reject,
+          }),
+        ),
+      ),
+    [dispatch, workspaceGroup],
+  );
+};
+
 export const useStartStreamAction = () => {
   const dispatch = useDispatch();
   const group = useStreamGroup();
@@ -110,6 +130,26 @@ export const useStopStreamAction = () => {
       dispatch(actions.stopStream.trigger({ params: newParams, options }));
     },
     [dispatch, group],
+  );
+};
+
+export const useStopStreamsAction = () => {
+  const dispatch = useDispatch();
+  const workspaceGroup = hooks.useWorkspaceGroup();
+  return useCallback(
+    (workspaceName) =>
+      new Promise((resolve, reject) =>
+        dispatch(
+          actions.stopStreams.trigger({
+            values: {
+              workspaceKey: { name: workspaceName, group: workspaceGroup },
+            },
+            resolve,
+            reject,
+          }),
+        ),
+      ),
+    [dispatch, workspaceGroup],
   );
 };
 

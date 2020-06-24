@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { normalize } from 'normalizr';
 import { merge } from 'lodash';
 import { ofType } from 'redux-observable';
 import { from } from 'rxjs';
@@ -23,51 +24,43 @@ import {
   map,
   mergeMap,
   startWith,
+  tap,
   takeUntil,
 } from 'rxjs/operators';
 
 import { LOG_LEVEL } from 'const';
-import { deleteWorkspace } from 'observables';
+import { fetchAndDeletePipelines } from 'observables';
 import * as actions from 'store/actions';
-import { getId } from 'utils/object';
+import * as schema from 'store/schema';
 
 export default (action$) =>
   action$.pipe(
-    ofType(actions.deleteWorkspace.TRIGGER),
+    ofType(actions.deletePipelines.TRIGGER),
     map((action) => action.payload),
     distinctUntilChanged(),
-    mergeMap(({ values, options, resolve, reject }) => {
-      const workspaceId = getId(values);
-      return deleteWorkspace(values).pipe(
-        mergeMap(() => {
-          if (resolve) resolve();
-
-          const input = [
-            actions.deleteWorkspace.success({ workspaceId }),
-            actions.switchWorkspace(),
-            actions.fetchNodes(),
-          ];
-
-          if (options?.showLog) {
-            input.push(
-              actions.createEventLog.trigger({
-                title: `Successfully deleted workspace ${values.name}.`,
-                type: LOG_LEVEL.info,
-              }),
-            );
-          }
-
-          return from(input);
+    mergeMap(({ values, resolve, reject }) => {
+      const { workspaceKey } = values;
+      return fetchAndDeletePipelines(workspaceKey).pipe(
+        tap((data) => {
+          if (resolve) resolve(data);
+          return data;
         }),
-        startWith(actions.deleteWorkspace.request({ workspaceId })),
+        map((data) => normalize(data, [schema.topic])),
+        map((normalizedData) =>
+          actions.deletePipelines.success(normalizedData),
+        ),
+        startWith(actions.deletePipelines.request()),
         catchError((err) => {
           if (reject) reject(err);
           return from([
-            actions.deleteWorkspace.failure(merge(err, { workspaceId })),
-            actions.createEventLog.trigger({ ...err, type: LOG_LEVEL.error }),
+            actions.deletePipelines.failure(merge(err)),
+            actions.createEventLog.trigger({
+              ...err,
+              type: LOG_LEVEL.error,
+            }),
           ]);
         }),
-        takeUntil(action$.pipe(ofType(actions.deleteWorkspace.CANCEL))),
+        takeUntil(action$.pipe(ofType(actions.deletePipelines.CANCEL))),
       );
     }),
   );

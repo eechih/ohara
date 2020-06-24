@@ -81,12 +81,46 @@ export const useDeleteTopicAction = () => {
   );
 };
 
+export const useDeleteTopicsAction = () => {
+  const dispatch = useDispatch();
+  return useCallback(
+    (workspaceKey) =>
+      new Promise((resolve, reject) =>
+        dispatch(
+          actions.deleteTopics.trigger({
+            values: { workspaceKey },
+            resolve,
+            reject,
+          }),
+        ),
+      ),
+    [dispatch],
+  );
+};
+
 export const useStartTopicAction = () => {
   const dispatch = useDispatch();
   const group = useTopicGroup();
   return useCallback(
     (name) => dispatch(actions.startTopic.trigger({ group, name })),
     [dispatch, group],
+  );
+};
+
+export const useStopTopicsAction = () => {
+  const dispatch = useDispatch();
+  return useCallback(
+    (workspaceKey) =>
+      new Promise((resolve, reject) =>
+        dispatch(
+          actions.stopTopics.trigger({
+            values: { workspaceKey },
+            resolve,
+            reject,
+          }),
+        ),
+      ),
+    [dispatch],
   );
 };
 

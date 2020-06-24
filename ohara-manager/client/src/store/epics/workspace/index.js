@@ -20,7 +20,6 @@ import deleteWorkspaceEpic from './deleteWorkspaceEpic';
 import restartWorkspaceEpic from './restartWorkspaceEpic';
 import switchWorkspaceEpic from './switchWorkspaceEpic';
 import updateWorkspaceEpic from './updateWorkspaceEpic';
-import simpleDeleteWorkspaceEpic from './simpleDeleteWorkspaceEpic';
 
 export default combineEpics(
   createWorkspaceEpic,
@@ -28,5 +27,4 @@ export default combineEpics(
   restartWorkspaceEpic,
   switchWorkspaceEpic,
   updateWorkspaceEpic,
-  simpleDeleteWorkspaceEpic,
 );

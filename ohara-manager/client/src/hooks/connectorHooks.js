@@ -107,6 +107,23 @@ export const useStopConnectorAction = () => {
     );
 };
 
+export const useStopConnectorsAction = () => {
+  const dispatch = useDispatch();
+  return useCallback(
+    (workerKey) =>
+      new Promise((resolve, reject) =>
+        dispatch(
+          actions.stopConnectors.trigger({
+            values: { workerKey },
+            resolve,
+            reject,
+          }),
+        ),
+      ),
+    [dispatch],
+  );
+};
+
 export const useDeleteConnectorAction = () => {
   const dispatch = useDispatch();
   const group = useConnectorGroup();
@@ -117,6 +134,23 @@ export const useDeleteConnectorAction = () => {
         options,
       }),
     );
+};
+
+export const useDeleteConnectorsAction = () => {
+  const dispatch = useDispatch();
+  return useCallback(
+    (workspaceKey) =>
+      new Promise((resolve, reject) =>
+        dispatch(
+          actions.deleteConnectors.trigger({
+            values: { workspaceKey },
+            resolve,
+            reject,
+          }),
+        ),
+      ),
+    [dispatch],
+  );
 };
 
 export const useFetchConnectorsAction = () => {
