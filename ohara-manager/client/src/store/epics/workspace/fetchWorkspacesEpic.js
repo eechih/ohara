@@ -14,51 +14,37 @@
  * limitations under the License.
  */
 
-import { from } from 'rxjs';
-import {
-  catchError,
-  distinctUntilChanged,
-  map,
-  mergeMap,
-  startWith,
-  tap,
-  takeUntil,
-} from 'rxjs/operators';
-import { ofType } from 'redux-observable';
-import { merge } from 'lodash';
 import { normalize } from 'normalizr';
+import { ofType } from 'redux-observable';
+import { from } from 'rxjs';
+import { catchError, map, mergeMap, startWith, tap } from 'rxjs/operators';
 
 import { LOG_LEVEL } from 'const';
-import { fetchAndDeleteStreams } from 'observables';
 import * as actions from 'store/actions';
 import * as schema from 'store/schema';
+import { fetchWorkspaces } from 'observables';
 
 export default (action$) =>
   action$.pipe(
-    ofType(actions.deleteStreams.TRIGGER),
+    ofType(actions.fetchWorkspaces.TRIGGER),
     map((action) => action.payload),
-    distinctUntilChanged(),
-    mergeMap(({ values, resolve, reject }) => {
-      const { workspaceKey } = values;
-      return fetchAndDeleteStreams(workspaceKey).pipe(
+    mergeMap(({ resolve, reject }) =>
+      fetchWorkspaces().pipe(
         tap((data) => {
           if (resolve) resolve(data);
-          return data;
         }),
-        map((data) => normalize(data, [schema.stream])),
-        map((normalizedData) => actions.deleteStreams.success(normalizedData)),
-        startWith(actions.deleteStreams.request()),
+        map((data) => normalize(data, [schema.workspace])),
+        map((normalizedData) =>
+          actions.fetchWorkspaces.success(normalizedData),
+        ),
+        startWith(actions.fetchWorkspaces.request()),
         catchError((err) => {
           if (reject) reject(err);
           return from([
-            actions.deleteStreams.failure(merge(err)),
-            actions.createEventLog.trigger({
-              ...err,
-              type: LOG_LEVEL.error,
-            }),
+            actions.fetchWorkspaces.failure(err),
+            actions.fetchWorkspaces.trigger({ ...err, type: LOG_LEVEL.error }),
           ]);
         }),
-        takeUntil(action$.pipe(ofType(actions.deleteStreams.CANCEL))),
-      );
-    }),
+      ),
+    ),
   );

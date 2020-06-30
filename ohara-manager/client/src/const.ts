@@ -130,5 +130,5 @@ export enum ACTIONS {
 export const RETRY_CONFIG = {
   initialInterval: 2000, // 2 seconds
   maxRetries: 10,
-  maxInterval: 2000, // 2 seconds
+  maxInterval: 2000, // 2 seconds interval between each retry
 };

@@ -79,7 +79,7 @@ export function stopStream(key: ObjectKey): Observable<ClusterData> {
     // wait until the service is not running
     defer(() => streamApi.get(key)).pipe(
       map((res) => {
-        if (isServiceRunning(res)) throw res;
+        if (res.data?.state) throw res;
         return res.data;
       }),
     ),

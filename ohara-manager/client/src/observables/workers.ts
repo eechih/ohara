@@ -65,7 +65,7 @@ export function stopWorker(key: ObjectKey) {
     // wait until the service is not running
     defer(() => workerApi.get(key)).pipe(
       map((res) => {
-        if (isServiceRunning(res)) throw res;
+        if (res.data?.state) throw res;
         return res.data;
       }),
     ),

@@ -139,23 +139,21 @@ export const useDeleteShabondiAction = () => {
     );
 };
 
-export const useDeleteShabondisAction = () => {
+export const useDeleteShabondisInWorkspaceAction = () => {
   const dispatch = useDispatch();
-  const workspaceGroup = hooks.useWorkspaceGroup();
+  const workspaceKey = hooks.useWorkspaceKey();
   return useCallback(
-    (workspaceName) =>
+    () =>
       new Promise((resolve, reject) =>
         dispatch(
           actions.deleteShabondis.trigger({
-            values: {
-              workspaceKey: { name: workspaceName, group: workspaceGroup },
-            },
+            values: { workspaceKey },
             resolve,
             reject,
           }),
         ),
       ),
-    [dispatch, workspaceGroup],
+    [dispatch, workspaceKey],
   );
 };
 

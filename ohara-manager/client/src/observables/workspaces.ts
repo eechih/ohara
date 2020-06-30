@@ -26,3 +26,7 @@ export function createWorkspace(values: any) {
 export function deleteWorkspace(key: ObjectKey) {
   return defer(() => workspaceApi.remove(key));
 }
+
+export function fetchWorkspaces() {
+  return defer(() => workspaceApi.getAll()).pipe(map((res) => res.data));
+}

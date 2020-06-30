@@ -81,10 +81,11 @@ export const useDeleteTopicAction = () => {
   );
 };
 
-export const useDeleteTopicsAction = () => {
+export const useDeleteTopicsInWorkspaceAction = () => {
   const dispatch = useDispatch();
+  const workspaceKey = hooks.useWorkspaceKey();
   return useCallback(
-    (workspaceKey) =>
+    () =>
       new Promise((resolve, reject) =>
         dispatch(
           actions.deleteTopics.trigger({
@@ -94,7 +95,7 @@ export const useDeleteTopicsAction = () => {
           }),
         ),
       ),
-    [dispatch],
+    [dispatch, workspaceKey],
   );
 };
 
@@ -107,10 +108,11 @@ export const useStartTopicAction = () => {
   );
 };
 
-export const useStopTopicsAction = () => {
+export const useStopTopicsInWorkspaceAction = () => {
   const dispatch = useDispatch();
+  const workspaceKey = hooks.useWorkspaceKey();
   return useCallback(
-    (workspaceKey) =>
+    () =>
       new Promise((resolve, reject) =>
         dispatch(
           actions.stopTopics.trigger({
@@ -120,7 +122,7 @@ export const useStopTopicsAction = () => {
           }),
         ),
       ),
-    [dispatch],
+    [dispatch, workspaceKey],
   );
 };
 

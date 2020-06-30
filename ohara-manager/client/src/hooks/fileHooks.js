@@ -65,10 +65,11 @@ export const useDeleteFileAction = () => {
   );
 };
 
-export const useDeleteFilesAction = () => {
+export const useDeleteFilesInWorkspaceAction = () => {
   const dispatch = useDispatch();
+  const workspaceKey = hooks.useWorkspaceKey();
   return useCallback(
-    (workspaceKey) =>
+    () =>
       new Promise((resolve, reject) =>
         dispatch(
           actions.deleteFiles.trigger({
@@ -78,7 +79,7 @@ export const useDeleteFilesAction = () => {
           }),
         ),
       ),
-    [dispatch],
+    [dispatch, workspaceKey],
   );
 };
 

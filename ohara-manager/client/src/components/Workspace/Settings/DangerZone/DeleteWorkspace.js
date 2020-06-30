@@ -22,25 +22,23 @@ import DialogContent from '@material-ui/core/DialogContent';
 
 import Stepper from 'components/common/FSMStepper';
 import * as hooks from 'hooks';
-import { getKey } from 'utils/object';
 
 const DeleteWorkspace = (props) => {
   const { isOpen, onClose } = props;
   const workspace = hooks.useWorkspace();
-  const workspaceKey = getKey(workspace);
 
   const stopBroker = hooks.useStopBrokerAction();
-  const stopTopics = hooks.useStopTopicsAction();
+  const stopTopics = hooks.useStopTopicsInWorkspaceAction();
   const stopWorker = hooks.useStopWorkerAction();
   const stopZookeeper = hooks.useStopZookeeperAction();
 
   const deleteBroker = hooks.useDeleteBrokerAction();
-  const deleteConnectors = hooks.useDeleteConnectorsAction();
-  const deleteFiles = hooks.useDeleteFilesAction();
-  const deletePipelines = hooks.useDeletePipelinesAction();
-  const deleteShabondis = hooks.useDeleteShabondisAction();
-  const deleteStreams = hooks.useDeleteStreamsAction();
-  const deleteTopics = hooks.useDeleteTopicsAction();
+  const deleteConnectors = hooks.useDeleteConnectorsInWorkspaceAction();
+  const deleteFiles = hooks.useDeleteFilesInWorkspaceAction();
+  const deletePipelines = hooks.useDeletePipelinesInWorkspaceAction();
+  const deleteShabondis = hooks.useDeleteShabondisInWorkspaceAction();
+  const deleteStreams = hooks.useDeleteStreamsInWorkspaceAction();
+  const deleteTopics = hooks.useDeleteTopicsInWorkspaceAction();
   const deleteWorker = hooks.useDeleteWorkerAction();
   const deleteWorkspace = hooks.useDeleteWorkspaceAction();
   const deleteZookeeper = hooks.useDeleteZookeeperAction();
@@ -48,23 +46,23 @@ const DeleteWorkspace = (props) => {
   const steps = [
     {
       name: 'delete connectors',
-      action: () => deleteConnectors(workspaceKey),
+      action: () => deleteConnectors(),
     },
     {
       name: 'delete streams',
-      action: () => deleteStreams(workspaceKey),
+      action: () => deleteStreams(),
     },
     {
       name: 'delete shabondis',
-      action: () => deleteShabondis(workspaceKey),
+      action: () => deleteShabondis(),
     },
     {
       name: 'stop topics',
-      action: () => stopTopics(workspaceKey),
+      action: () => stopTopics(),
     },
     {
       name: 'delete topics',
-      action: () => deleteTopics(workspaceKey),
+      action: () => deleteTopics(),
     },
     {
       name: 'stop worker',
@@ -86,22 +84,21 @@ const DeleteWorkspace = (props) => {
       name: 'stop zookeeper',
       action: () => stopZookeeper(workspace?.zookeeper?.name),
     },
-
     {
       name: 'delete zookeeper',
       action: () => deleteZookeeper(workspace?.zookeeper?.name),
     },
     {
       name: 'delete pipelines',
-      action: () => deletePipelines(workspaceKey),
+      action: () => deletePipelines(),
     },
     {
       name: 'delete files',
-      action: () => deleteFiles(workspaceKey),
+      action: () => deleteFiles(),
     },
     {
       name: 'delete workspace',
-      action: () => deleteWorkspace(workspace?.name, { showLog: true }),
+      action: () => deleteWorkspace(),
     },
   ];
 
@@ -112,7 +109,7 @@ const DeleteWorkspace = (props) => {
       maxWidth={'md'}
       open={isOpen}
     >
-      <DialogTitle>{'Delete Workspace 2'}</DialogTitle>
+      <DialogTitle>{'Delete Workspace'}</DialogTitle>
       <DialogContent>
         <Stepper onClose={onClose} steps={steps} />
       </DialogContent>

@@ -15,7 +15,7 @@
  */
 
 import { merge, isEmpty } from 'lodash';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import * as hooks from 'hooks';
@@ -34,10 +34,11 @@ export const useIsStreamLoading = () => {
 };
 
 export const useStreamGroup = () => {
-  const usePipelineGroup = hooks.usePipelineGroup();
-  const pipelineName = hooks.usePipelineName();
-  if (usePipelineGroup && pipelineName)
-    return hashByGroupAndName(usePipelineGroup, pipelineName);
+  const group = hooks.usePipelineGroup();
+  const name = hooks.usePipelineName();
+  return useMemo(() => {
+    if (group && name) return hashByGroupAndName(group, name);
+  }, [group, name]);
 };
 
 export const useCreateStreamAction = () => {
@@ -89,23 +90,21 @@ export const useDeleteStreamAction = () => {
   );
 };
 
-export const useDeleteStreamsAction = () => {
+export const useDeleteStreamsInWorkspaceAction = () => {
   const dispatch = useDispatch();
-  const workspaceGroup = hooks.useWorkspaceGroup();
+  const workspaceKey = hooks.useWorkspaceKey();
   return useCallback(
-    (workspaceName) =>
+    () =>
       new Promise((resolve, reject) =>
         dispatch(
           actions.deleteStreams.trigger({
-            values: {
-              workspaceKey: { name: workspaceName, group: workspaceGroup },
-            },
+            values: { workspaceKey },
             resolve,
             reject,
           }),
         ),
       ),
-    [dispatch, workspaceGroup],
+    [dispatch, workspaceKey],
   );
 };
 
@@ -166,6 +165,7 @@ export const useStreams = () => {
   }, [fetchStreams, isAppReady, isStreamLoaded, isStreamLoading]);
 
   return useSelector((state) => {
+    if (!group) return [];
     const streams = selectors.getStreamByGroup(state, { group });
     const results = streams.map((stream) => {
       const { stream__class: className, jarKey } = stream;

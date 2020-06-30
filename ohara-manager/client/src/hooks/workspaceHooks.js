@@ -34,10 +34,27 @@ export const useIsWorkspaceReady = () => {
 export const useWorkspaceName = () =>
   useSelector(useCallback((state) => selectors.getWorkspaceName(state), []));
 
+export const useWorkspaceKey = () => {
+  const group = useWorkspaceGroup();
+  const name = useWorkspaceName();
+  return useMemo(() => ({ group, name }), [group, name]);
+};
+
 export const useWorkspaceId = () => {
   const group = useWorkspaceGroup();
   const name = useWorkspaceName();
-  return getId({ group, name });
+  return useMemo(() => getId({ group, name }), [group, name]);
+};
+
+export const useFetchWorkspacesAction = () => {
+  const dispatch = useDispatch();
+  return useCallback(
+    () =>
+      new Promise((resolve, reject) =>
+        dispatch(actions.fetchWorkspaces.trigger({ resolve, reject })),
+      ),
+    [dispatch],
+  );
 };
 
 export const useSwitchWorkspaceAction = () => {
@@ -70,19 +87,19 @@ export const useUpdateWorkspaceAction = () => {
 
 export const useDeleteWorkspaceAction = () => {
   const dispatch = useDispatch();
-  const group = hooks.useWorkspaceGroup();
+  const workspaceKey = hooks.useWorkspaceKey();
   return useCallback(
-    (name) =>
+    () =>
       new Promise((resolve, reject) =>
         dispatch(
           actions.deleteWorkspace.trigger({
-            values: { group, name },
+            values: { workspaceKey },
             resolve,
             reject,
           }),
         ),
       ),
-    [dispatch, group],
+    [dispatch, workspaceKey],
   );
 };
 

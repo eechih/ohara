@@ -20,18 +20,15 @@ import * as hooks from 'hooks';
 import SettingsMain from './SettingsMain';
 import SettingsMenu from './SettingsMenu';
 import { SETTINGS_COMPONENT_TYPES, KIND } from 'const';
-import { useEditWorkspaceDialog } from 'context';
 import { Wrapper, StyledFullScreenDialog } from './SettingsStyles';
 import { useConfig } from './SettingsHooks';
 import { DeleteWorkspace, RestartWorkspace } from './DangerZone';
 import { Dialog } from 'components/common/Dialog';
 
 const Settings = () => {
-  const {
-    isOpen: isEditWorkspaceDialogOpen,
-    close: closeEditWorkspaceDialog,
-    data: pageName,
-  } = useEditWorkspaceDialog();
+  const isSettingsOpen = hooks.useIsSettingsOpen();
+  const pageName = hooks.usePageNameInSettings();
+  const closeSettings = hooks.useCloseSettingsAction();
   const [selectedMenu, setSelectedMenu] = React.useState('');
   const [selectedComponent, setSelectedComponent] = React.useState(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
@@ -95,7 +92,7 @@ const Settings = () => {
       return setIsConfirmDialogOpen(true);
     }
 
-    closeEditWorkspaceDialog();
+    closeSettings();
     resetSelectedItem();
   };
 
@@ -123,7 +120,7 @@ const Settings = () => {
     <StyledFullScreenDialog
       isPageComponent={isPageComponent}
       onClose={handleClose}
-      open={isEditWorkspaceDialogOpen}
+      open={isSettingsOpen}
       testId="workspace-settings-dialog"
       title="Settings"
     >
@@ -162,7 +159,7 @@ const Settings = () => {
           maxWidth="xs"
           onClose={() => setIsConfirmDialogOpen(false)}
           onConfirm={() => {
-            closeEditWorkspaceDialog();
+            closeSettings();
             setIsConfirmDialogOpen(false);
           }}
           open={isConfirmDialogOpen}

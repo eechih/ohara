@@ -136,10 +136,11 @@ export const useDeleteConnectorAction = () => {
     );
 };
 
-export const useDeleteConnectorsAction = () => {
+export const useDeleteConnectorsInWorkspaceAction = () => {
   const dispatch = useDispatch();
+  const workspaceKey = hooks.useWorkspaceKey();
   return useCallback(
-    (workspaceKey) =>
+    () =>
       new Promise((resolve, reject) =>
         dispatch(
           actions.deleteConnectors.trigger({
@@ -149,7 +150,7 @@ export const useDeleteConnectorsAction = () => {
           }),
         ),
       ),
-    [dispatch],
+    [dispatch, workspaceKey],
   );
 };
 

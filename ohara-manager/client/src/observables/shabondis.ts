@@ -83,7 +83,7 @@ export function stopShabondi(key: ObjectKey): Observable<ClusterData> {
     // wait until the service is not running
     defer(() => shabondiApi.get(key)).pipe(
       map((res) => {
-        if (isServiceRunning(res)) throw res;
+        if (res.data?.state) throw res;
         return res.data;
       }),
     ),

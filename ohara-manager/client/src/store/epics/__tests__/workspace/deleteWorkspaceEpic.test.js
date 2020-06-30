@@ -22,11 +22,12 @@ import * as workspaceApi from 'api/workspaceApi';
 import deleteWorkspaceEpic from '../../workspace/deleteWorkspaceEpic';
 import { entity as workspaceEntity } from 'api/__mocks__/workspaceApi';
 import * as actions from 'store/actions';
-import { getId } from 'utils/object';
+import { getId, getKey } from 'utils/object';
 
 jest.mock('api/workspaceApi');
 
-const wkId = getId(workspaceEntity);
+const workspaceId = getId(workspaceEntity);
+const workspaceKey = getKey(workspaceEntity);
 
 const makeTestScheduler = () =>
   new TestScheduler((actual, expected) => {
@@ -38,13 +39,13 @@ it('delete workspace should be worked correctly', () => {
     const { hot, expectObservable, expectSubscriptions, flush } = helpers;
 
     const input = '   ^-a        ';
-    const expected = '--a 999ms (uxy)';
+    const expected = '--a 999ms (uvxy)';
     const subs = ['   ^----------', '--^ 999ms !'];
 
     const action$ = hot(input, {
       a: {
         type: actions.deleteWorkspace.TRIGGER,
-        payload: { values: workspaceEntity },
+        payload: { values: { workspaceKey } },
       },
     });
     const output$ = deleteWorkspaceEpic(action$);
@@ -53,13 +54,20 @@ it('delete workspace should be worked correctly', () => {
       a: {
         type: actions.deleteWorkspace.REQUEST,
         payload: {
-          workspaceId: wkId,
+          workspaceId,
         },
       },
       u: {
         type: actions.deleteWorkspace.SUCCESS,
         payload: {
-          workspaceId: wkId,
+          workspaceId,
+        },
+      },
+      v: {
+        type: actions.createEventLog.TRIGGER,
+        payload: {
+          title: `Successfully deleted workspace ${workspaceEntity.name}.`,
+          type: LOG_LEVEL.info,
         },
       },
       x: {
@@ -81,7 +89,7 @@ it('delete multiple workspaces should be worked correctly', () => {
     const { hot, expectObservable, expectSubscriptions, flush } = helpers;
 
     const input = '   ^-a-----b         ';
-    const expected = '--a-----b 993ms (uxy)-(vxy)';
+    const expected = '--a-----b 993ms (mnxy)(uvxy)';
 
     const subs = ['   ^------------', '--^ 999ms !', '--------^ 999ms !'];
     const anotherWorkspaceEntity = {
@@ -89,17 +97,20 @@ it('delete multiple workspaces should be worked correctly', () => {
       name: 'wk01',
     };
 
+    const anotherWorkspaceKey = getKey(anotherWorkspaceEntity);
+    const anotherWorkspaceId = getId(anotherWorkspaceEntity);
+
     const action$ = hot(input, {
       a: {
         type: actions.deleteWorkspace.TRIGGER,
         payload: {
-          values: workspaceEntity,
+          values: { workspaceKey },
         },
       },
       b: {
         type: actions.deleteWorkspace.TRIGGER,
         payload: {
-          values: anotherWorkspaceEntity,
+          values: { workspaceKey: anotherWorkspaceKey },
         },
       },
     });
@@ -109,27 +120,44 @@ it('delete multiple workspaces should be worked correctly', () => {
       a: {
         type: actions.deleteWorkspace.REQUEST,
         payload: {
-          workspaceId: wkId,
-        },
-      },
-      u: {
-        type: actions.deleteWorkspace.SUCCESS,
-        payload: {
-          workspaceId: wkId,
+          workspaceId,
         },
       },
       b: {
         type: actions.deleteWorkspace.REQUEST,
         payload: {
-          workspaceId: getId(anotherWorkspaceEntity),
+          workspaceId: anotherWorkspaceId,
+        },
+      },
+
+      m: {
+        type: actions.deleteWorkspace.SUCCESS,
+        payload: {
+          workspaceId,
+        },
+      },
+      n: {
+        type: actions.createEventLog.TRIGGER,
+        payload: {
+          title: `Successfully deleted workspace ${workspaceEntity.name}.`,
+          type: LOG_LEVEL.info,
+        },
+      },
+
+      u: {
+        type: actions.deleteWorkspace.SUCCESS,
+        payload: {
+          workspaceId: anotherWorkspaceId,
         },
       },
       v: {
-        type: actions.deleteWorkspace.SUCCESS,
+        type: actions.createEventLog.TRIGGER,
         payload: {
-          workspaceId: getId(anotherWorkspaceEntity),
+          title: `Successfully deleted workspace ${anotherWorkspaceEntity.name}.`,
+          type: LOG_LEVEL.info,
         },
       },
+
       x: {
         type: actions.switchWorkspace.TRIGGER,
       },
@@ -149,13 +177,13 @@ it('delete same workspace within period should be created once only', () => {
     const { hot, expectObservable, expectSubscriptions, flush } = helpers;
 
     const input = '   ^-aa 10s a---';
-    const expected = '--a 999ms (uxy)';
+    const expected = '--a 999ms (uvxy)';
     const subs = ['   ^------------', '--^ 999ms !'];
 
     const action$ = hot(input, {
       a: {
         type: actions.deleteWorkspace.TRIGGER,
-        payload: { values: workspaceEntity },
+        payload: { values: { workspaceKey } },
       },
     });
     const output$ = deleteWorkspaceEpic(action$);
@@ -164,13 +192,20 @@ it('delete same workspace within period should be created once only', () => {
       a: {
         type: actions.deleteWorkspace.REQUEST,
         payload: {
-          workspaceId: wkId,
+          workspaceId,
         },
       },
       u: {
         type: actions.deleteWorkspace.SUCCESS,
         payload: {
-          workspaceId: wkId,
+          workspaceId,
+        },
+      },
+      v: {
+        type: actions.createEventLog.TRIGGER,
+        payload: {
+          title: `Successfully deleted workspace ${workspaceEntity.name}.`,
+          type: LOG_LEVEL.info,
         },
       },
       x: {
@@ -207,7 +242,7 @@ it('throw exception of delete workspace should also trigger event log action', (
     const action$ = hot(input, {
       a: {
         type: actions.deleteWorkspace.TRIGGER,
-        payload: { values: workspaceEntity },
+        payload: { values: { workspaceKey } },
       },
     });
     const output$ = deleteWorkspaceEpic(action$);
@@ -215,17 +250,17 @@ it('throw exception of delete workspace should also trigger event log action', (
     expectObservable(output$).toBe(expected, {
       a: {
         type: actions.deleteWorkspace.REQUEST,
-        payload: { workspaceId: wkId },
+        payload: { workspaceId },
       },
       e: {
         type: actions.deleteWorkspace.FAILURE,
-        payload: { ...error, workspaceId: wkId },
+        payload: { ...error, workspaceId },
       },
       u: {
         type: actions.createEventLog.TRIGGER,
         payload: {
           ...error,
-          workspaceId: wkId,
+          workspaceId,
           type: LOG_LEVEL.error,
         },
       },

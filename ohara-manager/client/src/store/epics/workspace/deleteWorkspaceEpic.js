@@ -24,6 +24,7 @@ import {
   mergeMap,
   startWith,
   takeUntil,
+  tap,
 } from 'rxjs/operators';
 
 import { LOG_LEVEL } from 'const';
@@ -36,29 +37,24 @@ export default (action$) =>
     ofType(actions.deleteWorkspace.TRIGGER),
     map((action) => action.payload),
     distinctUntilChanged(),
-    mergeMap(({ values, options, resolve, reject }) => {
-      const workspaceId = getId(values);
-      return deleteWorkspace(values).pipe(
-        mergeMap(() => {
+    mergeMap(({ values, resolve, reject }) => {
+      const { workspaceKey } = values;
+      const workspaceId = getId(workspaceKey);
+      return deleteWorkspace(workspaceKey).pipe(
+        tap(() => {
           if (resolve) resolve();
-
-          const input = [
+        }),
+        mergeMap(() =>
+          from([
             actions.deleteWorkspace.success({ workspaceId }),
+            actions.createEventLog.trigger({
+              title: `Successfully deleted workspace ${workspaceKey.name}.`,
+              type: LOG_LEVEL.info,
+            }),
             actions.switchWorkspace(),
             actions.fetchNodes(),
-          ];
-
-          if (options?.showLog) {
-            input.push(
-              actions.createEventLog.trigger({
-                title: `Successfully deleted workspace ${values.name}.`,
-                type: LOG_LEVEL.info,
-              }),
-            );
-          }
-
-          return from(input);
-        }),
+          ]),
+        ),
         startWith(actions.deleteWorkspace.request({ workspaceId })),
         catchError((err) => {
           if (reject) reject(err);

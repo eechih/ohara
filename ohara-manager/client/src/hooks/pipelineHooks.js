@@ -135,10 +135,11 @@ export const useDeletePipelineAction = () => {
   );
 };
 
-export const useDeletePipelinesAction = () => {
+export const useDeletePipelinesInWorkspaceAction = () => {
   const dispatch = useDispatch();
+  const workspaceKey = hooks.useWorkspaceKey();
   return useCallback(
-    (workspaceKey) =>
+    () =>
       new Promise((resolve, reject) =>
         dispatch(
           actions.deletePipelines.trigger({
@@ -148,7 +149,7 @@ export const useDeletePipelinesAction = () => {
           }),
         ),
       ),
-    [dispatch],
+    [dispatch, workspaceKey],
   );
 };
 
