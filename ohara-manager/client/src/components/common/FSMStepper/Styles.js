@@ -31,7 +31,7 @@ export default styled.div(
     .divider {
       margin: ${theme.spacing(1, 0)};
       height: 1px;
-      border-top: 1px solid #eee;
+      border-top: 1px solid ${theme.palette.grey[200]};
       text-align: center;
 
       span {
@@ -41,8 +41,8 @@ export default styled.div(
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.8px;
-        color: rgba(0, 0, 0, 0.85);
-        background: #ffffff;
+        color: ${theme.palette.text.primary};
+        background: ${theme.palette.common.white};
       }
     }
 

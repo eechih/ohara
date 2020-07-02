@@ -100,7 +100,7 @@ const FSMStepper = (props) => {
                 onChange={(event) => setCloseChecked(event.target.checked)}
               />
             }
-            label="Close after successful"
+            label="Close after finish"
           />
           <Button
             data-testid="stepper-close-button"
@@ -138,7 +138,7 @@ FSMStepper.defaultProps = {
   forceCloseAfterFinish: false,
   onClose: () => {},
   revertible: false,
-  revertText: 'Rollback',
+  revertText: 'ROLLBACK',
   showController: true,
   showLogViewer: true,
   showProgress: true,

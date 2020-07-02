@@ -102,7 +102,7 @@ const LogViewer = ({ revertText, state }) => {
         onClose={() => setCurrentLog(null)}
         open={!!currentLog}
         showActions={false}
-        title={`Failed to ${currentLog?.title}` || ''}
+        title={`Failed to ${currentLog?.title}`}
       >
         <ReactJson
           displayDataTypes={false}
@@ -130,7 +130,7 @@ LogViewer.propTypes = {
 };
 
 LogViewer.defaultProps = {
-  revertText: 'Rollback',
+  revertText: 'ROLLBACK',
 };
 
 export default LogViewer;

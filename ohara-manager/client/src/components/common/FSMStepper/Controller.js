@@ -16,6 +16,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { toUpper } from 'lodash';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -51,7 +52,7 @@ const Controller = (props) => {
               onClick={() => send('REVERT')}
               startIcon={<ArrowBackIcon />}
             >
-              {textOfRevertButton}
+              {toUpper(textOfRevertButton)}
             </Button>
           </Grid>
         )}
