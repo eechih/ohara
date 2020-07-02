@@ -18,10 +18,36 @@ import styled, { css } from 'styled-components';
 
 export default styled.div(
   ({ theme }) => css`
-    margin-bottom: ${theme.spacing(3)}px;
-
     .stepper {
       padding: ${theme.spacing(3, 0)};
+    }
+
+    .logViewer {
+      height: 320px;
+      padding: ${theme.spacing(1, 2)};
+      overflow-y: auto;
+    }
+
+    .divider {
+      margin: ${theme.spacing(1, 0)};
+      height: 1px;
+      border-top: 1px solid #eee;
+      text-align: center;
+
+      span {
+        position: relative;
+        bottom: ${theme.spacing(1)}px;
+        padding: ${theme.spacing(0, 2.5)};
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: rgba(0, 0, 0, 0.85);
+        background: #ffffff;
+      }
+    }
+
+    .log-step-stage {
+      cursor: pointer;
     }
   `,
 );
