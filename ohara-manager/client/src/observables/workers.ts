@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { defer, of, throwError, zip } from 'rxjs';
+import { defer, of, throwError } from 'rxjs';
 import { catchError, map, concatAll, last } from 'rxjs/operators';
 import { retryBackoff } from 'backoff-rxjs';
 import { ObjectKey } from 'api/apiInterface/basicInterface';

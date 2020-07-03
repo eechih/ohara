@@ -91,7 +91,7 @@ it('start worker should run in two minutes', () => {
       name: workerEntity.name,
     };
 
-    // stop 6 times, get 6 times, retry 5 times
+    // start 6 times, get 6 times, retry 5 times
     // => 100 * 6 + 100 * 6 + 2000 * 5 = 11200ms
     const expected = '11200ms (v|)';
 
