@@ -33,7 +33,7 @@ import { SOURCES } from '../../src/api/apiInterface/connectorInterface';
 import { hashByGroupAndName } from '../../src/utils/sha';
 import * as generate from '../../src/utils/generate';
 import { sleep } from '../../src/utils/common';
-import { deleteAllServices, generateNodeIfNeed } from '../utils';
+import { deleteAllServices, generateNodeIfNeeded } from '../utils';
 
 interface FixtureResponse {
   name: string;
@@ -75,7 +75,7 @@ declare global {
     interface Chainable {
       // Utils
       createJar: (file: FixtureRequest) => Promise<FixtureResponse>;
-      createNode: (node?: NodeRequest) => Chainable<null>;
+      createNode: (node?: NodeRequest) => Chainable<NodeRequest>;
       createWorkspace: ({
         workspaceName,
         node,
@@ -176,7 +176,7 @@ Cypress.Commands.add('createJar', (file: Cypress.FixtureRequest) => {
 
 Cypress.Commands.add(
   'createNode',
-  (node: NodeRequest = generateNodeIfNeed()) => {
+  (node: NodeRequest = generateNodeIfNeeded()) => {
     cy.findByTestId('nodes-dialog-open-button').click();
     cy.findByTestId('nodes-dialog').should('exist');
 
@@ -193,7 +193,8 @@ Cypress.Commands.add(
 
     cy.findByTestId('nodes-dialog-close-button').click();
     cy.findByTestId('nodes-dialog').should('not.exist');
-    cy.end();
+
+    return cy.wrap(node);
   },
 );
 

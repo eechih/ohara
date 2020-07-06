@@ -17,7 +17,7 @@
 import * as generate from '../../../src/utils/generate';
 import { NodeRequest } from '../../../src/api/apiInterface/nodeInterface';
 import { GROUP } from '../../../src/const';
-import { generateNodeIfNeed } from '../../utils';
+import { generateNodeIfNeeded } from '../../utils';
 
 describe('App Bar', () => {
   before(() => cy.deleteAllServices());
@@ -174,29 +174,28 @@ describe('App Bar', () => {
 
     it('should have an event log when creating a workspace fails', () => {
       const workspaceName = 'workspace2';
-      const node: NodeRequest = generateNodeIfNeed();
-
       cy.visit('/');
-      cy.createNode(node);
 
-      // create a zookeeper by native api
-      cy.request('POST', 'api/zookeepers', {
-        name: workspaceName,
-        group: GROUP.ZOOKEEPER,
-        nodeNames: [node.hostname],
-      });
+      cy.createNode().then((node) => {
+        // create a zookeeper by native api
+        cy.request('POST', 'api/zookeepers', {
+          name: workspaceName,
+          group: GROUP.ZOOKEEPER,
+          nodeNames: [node.hostname],
+        });
 
-      cy.createWorkspace({
-        workspaceName,
-        node,
-      });
+        cy.createWorkspace({
+          workspaceName,
+          node,
+        });
 
-      cy.findByTestId('close-intro-button').filter(':visible').click();
-      cy.findByTitle('Event logs').click();
-      cy.findByTestId('event-log-list').within(() => {
-        cy.findAllByText(`Failed to create workspace ${workspaceName}.`).should(
-          'exist',
-        );
+        cy.findByTestId('close-intro-button').filter(':visible').click();
+        cy.findByTitle('Event logs').click();
+        cy.findByTestId('event-log-list').within(() => {
+          cy.findAllByText(
+            `Failed to create workspace ${workspaceName}.`,
+          ).should('exist');
+        });
       });
     });
   });

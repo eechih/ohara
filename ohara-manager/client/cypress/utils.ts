@@ -406,7 +406,7 @@ export const assertSettingsByDefinitions = (
   });
 };
 
-export function generateNodeIfNeed(): NodeRequest {
+export function generateNodeIfNeeded(): NodeRequest {
   const nodeHost = Cypress.env('nodeHost');
   const nodePort = Cypress.env('nodePort');
   const nodeUser = Cypress.env('nodeUser');
