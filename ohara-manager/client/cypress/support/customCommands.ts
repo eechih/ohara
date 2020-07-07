@@ -286,7 +286,23 @@ Cypress.Commands.add(
     cy.findAllByText('SUBMIT').filter(':visible').click();
 
     cy.findByTestId('create-workspace').should('be.visible');
-    cy.findByTestId('stepper-close-button').should('be.visible').click();
+    cy.findByTestId('stepper-close-button').should('be.visible');
+
+    // if the RETRY button is enabled, the task is stopped and has not been completed
+    // when we click the CLOSE button, the ABORT confirm dialog should prompt
+    cy.get('body').then(($body) => {
+      const $retryButton = $body.find(
+        'button[data-testid="stepper-retry-button"]',
+      );
+      if ($retryButton.filter(':visible').length > 0) {
+        cy.findByTestId('stepper-close-button').click();
+        cy.findByTestId('abort-task-confirm-dialog').should('be.visible');
+        cy.findByTestId('confirm-button-ABORT').should('be.visible').click();
+      } else {
+        cy.findByTestId('stepper-close-button').click();
+      }
+    });
+
     cy.findByTestId('create-workspace').should('not.be.visible');
     cy.end();
   },

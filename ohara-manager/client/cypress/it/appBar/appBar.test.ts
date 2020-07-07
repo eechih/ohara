@@ -176,6 +176,13 @@ describe('App Bar', () => {
       const workspaceName = 'workspace2';
       cy.visit('/');
 
+      // close the intro dialog
+      cy.get('body').then(($body) => {
+        if ($body.find('[data-testid="intro-dialog"]').length > 0) {
+          cy.findByTestId('close-intro-button').filter(':visible').click();
+        }
+      });
+
       cy.createNode().then((node) => {
         // create a zookeeper by native api
         cy.request('POST', 'api/zookeepers', {
@@ -184,6 +191,7 @@ describe('App Bar', () => {
           nodeNames: [node.hostname],
         });
 
+        // Create a workspace
         cy.createWorkspace({
           workspaceName,
           node,
