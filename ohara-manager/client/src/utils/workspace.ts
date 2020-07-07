@@ -20,6 +20,7 @@ import {
 } from 'api/apiInterface/workspaceInterface';
 
 export function isUnstable(workspace: Workspace) {
+  if (!workspace) return false;
   return (
     workspace.flag === WORKSPACE_FLAGS.CREATING ||
     workspace.flag === WORKSPACE_FLAGS.RESTARTING ||
@@ -28,5 +29,5 @@ export function isUnstable(workspace: Workspace) {
 }
 
 export function isStable(workspace: Workspace) {
-  return !isUnstable(workspace);
+  return workspace && !isUnstable(workspace);
 }

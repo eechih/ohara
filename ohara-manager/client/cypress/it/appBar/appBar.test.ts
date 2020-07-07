@@ -201,7 +201,17 @@ describe('App Bar', () => {
           .find(`div.workspace-list > span[title="${workspaceName}"]`)
           .within(() => {
             cy.findByTitle('Unstable workspace').should('exist');
-          });
+          })
+          .click();
+
+        cy.findByTestId('snackbar')
+          .contains(`This is an unstable workspace: ${workspaceName}`)
+          .should('exist');
+
+        // Cannot use URL to access unstable workspace
+        cy.visit(`/${workspaceName}`)
+          .location()
+          .should('not.eq', `/${workspaceName}`);
       });
     });
   });
