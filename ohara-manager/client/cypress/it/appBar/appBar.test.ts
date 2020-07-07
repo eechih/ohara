@@ -17,7 +17,6 @@
 import * as generate from '../../../src/utils/generate';
 import { NodeRequest } from '../../../src/api/apiInterface/nodeInterface';
 import { GROUP } from '../../../src/const';
-import { generateNodeIfNeeded } from '../../utils';
 
 describe('App Bar', () => {
   before(() => cy.deleteAllServices());
@@ -174,14 +173,6 @@ describe('App Bar', () => {
 
     it('should have an event log when creating a workspace fails', () => {
       const workspaceName = 'workspace2';
-      cy.visit('/');
-
-      // close the intro dialog
-      cy.get('body').then(($body) => {
-        if ($body.find('[data-testid="intro-dialog"]').length > 0) {
-          cy.findByTestId('close-intro-button').filter(':visible').click();
-        }
-      });
 
       cy.createNode().then((node) => {
         // create a zookeeper by native api

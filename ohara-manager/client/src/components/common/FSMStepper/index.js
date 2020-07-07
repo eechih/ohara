@@ -136,13 +136,14 @@ const FSMStepper = React.forwardRef((props, ref) => {
         testId="abort-task-confirm-dialog"
         title="Abort task?"
       />
-      {!isFinish && (
-        <Beforeunload
-          onBeforeunload={() =>
-            'The task currently being executed is not yet complete. If aborted, this workspace will be UNAVAILABLE. Are you sure you want to abort?'
+
+      <Beforeunload
+        onBeforeunload={() => {
+          if (!isFinish) {
+            return 'The task currently being executed is not yet complete. If aborted, this workspace will be UNAVAILABLE. Are you sure you want to abort?';
           }
-        />
-      )}
+        }}
+      />
     </Styles>
   );
 });
