@@ -113,6 +113,7 @@ const AppBar = () => {
           <Tooltip placement="right" title="Workspace list">
             <IconButton
               className="workspace-list item"
+              data-testid="workspace-list-button"
               onClick={() =>
                 isEmpty(workspaces) ? openIntro() : toggleWorkspaceList()
               }

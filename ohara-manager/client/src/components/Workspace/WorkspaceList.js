@@ -89,6 +89,7 @@ function WorkspaceList() {
         onClose={close}
         open={isOpen}
         showActions={false}
+        testId="workspace-list-dialog"
         title={`Showing ${workspaceCount} ${
           workspaceCount > 1 ? 'workspaces' : 'workspace'
         }`}
@@ -176,7 +177,7 @@ function WorkspaceList() {
                             )
                           }
                         >
-                          {isStable ? 'Into Workspace' : 'Unstable Workspace'}
+                          {isStable ? 'INTO WORKSPACE' : 'UNSTABLE WORKSPACE'}
                         </Button>
                       </Tooltip>
                     </CardActions>
