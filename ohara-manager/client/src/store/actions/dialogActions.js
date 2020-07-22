@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-export const TAB = {
-  topic: 'TOPICS',
-  log: 'LOGS',
-};
+import { createRoutine } from 'redux-routines';
+
+export const openDialog = createRoutine('OPEN_DIALOG');

@@ -36,10 +36,12 @@ export const useInitializeApp = (workspaceName, pipelineName) => {
 export const useWelcome = () => {
   const isAppReady = useIsAppReady();
   const allWorkspaces = hooks.useAllWorkspaces();
-  const wasIntroOpened = hooks.useWasIntroOpened();
-  const openIntro = hooks.useOpenIntroAction();
+  const introDialog = hooks.useIntroDialog();
+  const hasIntroDialogBeenOpened = !!introDialog?.data?.hasBeenOpened;
 
   useEffect(() => {
-    if (isAppReady && !wasIntroOpened && isEmpty(allWorkspaces)) openIntro();
-  }, [isAppReady, allWorkspaces, wasIntroOpened, openIntro]);
+    if (isAppReady && !hasIntroDialogBeenOpened && isEmpty(allWorkspaces)) {
+      introDialog.open();
+    }
+  }, [isAppReady, allWorkspaces, hasIntroDialogBeenOpened, introDialog]);
 };

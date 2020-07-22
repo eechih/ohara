@@ -81,8 +81,7 @@ const StyledDialogActions = styled(DialogActions)(
 );
 
 const MuiDialog = ({ quickModeText }) => {
-  const isIntroDialogOpen = hooks.useIsIntroOpen();
-  const closeIntroDialog = hooks.useCloseIntroAction();
+  const introDialog = hooks.useIntroDialog();
   const openWorkspaceDialog = hooks.useOpenCreateWorkspaceDialogAction();
 
   return (
@@ -90,8 +89,8 @@ const MuiDialog = ({ quickModeText }) => {
       data-testid="intro-dialog"
       fullWidth
       maxWidth="sm"
-      onClose={closeIntroDialog}
-      open={isIntroDialogOpen}
+      onClose={introDialog.close}
+      open={introDialog.isOpen}
       PaperComponent={DrabblePaper}
       TransitionComponent={Transition}
     >
@@ -105,7 +104,7 @@ const MuiDialog = ({ quickModeText }) => {
         <IconButton
           className="close-button"
           data-testid="close-intro-button"
-          onClick={closeIntroDialog}
+          onClick={introDialog.close}
         >
           <CloseIcon />
         </IconButton>

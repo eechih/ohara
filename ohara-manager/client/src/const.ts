@@ -115,3 +115,18 @@ export const RETRY_CONFIG = {
   maxRetries: 10,
   maxInterval: 2000, // 2 seconds interval between each retry
 };
+
+export enum DialogName {
+  DEV_TOOL_DIALOG = 'devToolDialog',
+  EVENT_LOG_DIALOG = 'eventLogDialog',
+  INTRO_DIALOG = 'introDialog',
+  NODE_LIST_DIALOG = 'nodeListDialog',
+  PIPELINE_PROPERTY_DIALOG = 'pipelinePropertyDialog',
+  WORKSPACE_LIST_DIALOG = 'workspaceListDialog',
+  WORKSPACE_SETTINGS_DIALOG = 'workspaceSettingsDialog',
+}
+
+export enum DevToolTabName {
+  TOPIC = 'TOPICS',
+  LOG = 'LOGS',
+}

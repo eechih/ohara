@@ -42,18 +42,11 @@ const AppBar = () => {
   const allNodes = hooks.useAllNodes();
   const workspaces = hooks.useAllWorkspaces();
   const workspace = hooks.useWorkspace();
-  const openIntro = hooks.useOpenIntroAction();
-  const {
-    toggle: toggleDevTool,
-    close: closeDevTool,
-  } = context.useDevToolDialog();
-  const {
-    toggle: toggleEventLog,
-    close: closeEventLog,
-    isOpen: isEventLogOpen,
-  } = context.useEventLogDialog();
+  const introDialog = hooks.useIntroDialog();
+  const devToolDialog = hooks.useDevToolDialog();
+  const eventLogDialog = hooks.useEventLogDialog();
   const { data: configuratorInfo } = context.useConfiguratorState();
-  const { toggle: toggleWorkspaceList } = context.useListWorkspacesDialog();
+  const workspaceListDialog = hooks.useWorkspaceListDialog();
   const { data: notifications } = hooks.useEventNotifications();
   const switchWorkspace = hooks.useSwitchWorkspaceAction();
   const initEventLogs = hooks.useInitEventLogsAction();
@@ -103,7 +96,7 @@ const AppBar = () => {
           })}
 
           <Tooltip placement="right" title="Create a new workspace">
-            <div className="add-workspace item" onClick={openIntro}>
+            <div className="add-workspace item" onClick={introDialog.open}>
               <AddIcon />
             </div>
           </Tooltip>
@@ -115,7 +108,9 @@ const AppBar = () => {
               className="workspace-list item"
               data-testid="workspace-list-button"
               onClick={() =>
-                isEmpty(workspaces) ? openIntro() : toggleWorkspaceList()
+                isEmpty(workspaces)
+                  ? introDialog.open()
+                  : workspaceListDialog.toggle()
               }
             >
               <AppsIcon />
@@ -126,11 +121,11 @@ const AppBar = () => {
             <IconButton
               className="event-logs item"
               onClick={() => {
-                toggleEventLog();
-                closeDevTool();
+                eventLogDialog.toggle();
+                devToolDialog.close();
                 // during clicking action, the event log dialog is still "opened"
                 // we should assert isOpen=true(which will close dialog later) and trigger the initEventLogs
-                if (isEventLogOpen) initEventLogs();
+                if (eventLogDialog.isOpen) initEventLogs();
               }}
             >
               <Badge
@@ -146,8 +141,8 @@ const AppBar = () => {
             <IconButton
               className="developer-tools item"
               onClick={() => {
-                toggleDevTool();
-                closeEventLog();
+                devToolDialog.toggle();
+                eventLogDialog.close();
                 // We should initial event logs when clicking the devTool button
                 // since it will trigger close event log whether devTool opens or not
                 initEventLogs();

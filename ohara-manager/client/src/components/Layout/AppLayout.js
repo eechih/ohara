@@ -22,7 +22,6 @@ import AppBar from './AppBar';
 import Pipeline from 'components/Pipeline';
 import Navigator from './Navigator';
 import EventLog from 'components/EventLog';
-import * as context from 'context';
 import { DevToolDialog } from 'components/DevTool';
 import {
   WorkspaceList as ListWorkspacesDialog,
@@ -39,8 +38,8 @@ const AppLayout = () => {
   hooks.useInitializeApp(workspaceName, pipelineName);
   hooks.useWelcome();
 
-  const { isOpen: isDevToolOpen } = context.useDevToolDialog();
-  const { isOpen: isEventLogOpen } = context.useEventLogDialog();
+  const { isOpen: isDevToolOpen } = hooks.useDevToolDialog();
+  const { isOpen: isEventLogOpen } = hooks.useEventLogDialog();
 
   const pipelineApiRef = useRef(null);
 

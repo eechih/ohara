@@ -18,23 +18,39 @@ import * as actions from 'store/actions';
 
 const initialState = {
   isOpen: false,
-  opened: false,
+  data: null,
 };
 
-export default function reducer(state = initialState, action) {
+function dialog(state = initialState, action) {
   switch (action.type) {
-    case actions.openIntro.TRIGGER:
+    case actions.openDialog.TRIGGER:
       return {
         ...state,
         isOpen: true,
-        opened: true,
+        data: action.payload,
       };
-    case actions.closeIntro.TRIGGER:
+    case actions.openDialog.FULFILL:
       return {
         ...state,
         isOpen: false,
+        data: action.payload || null,
       };
+
     default:
       return state;
   }
+}
+
+export default function reducer(state = {}, action) {
+  const { name, type } = action;
+  if (
+    name &&
+    (type === actions.openDialog.TRIGGER || type === actions.openDialog.FULFILL)
+  ) {
+    return {
+      ...state,
+      [name]: dialog(state[name], action),
+    };
+  }
+  return state;
 }
