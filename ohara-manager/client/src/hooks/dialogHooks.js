@@ -16,89 +16,102 @@
 
 import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { assign } from 'lodash';
 import * as actions from 'store/actions';
-import { DialogName, DevToolTabName } from 'const';
+import { DialogName } from 'const';
 
-const useDialog = (
-  dialogNameOrConfig = {},
-  dataCreator,
-  toKeepData = false,
-) => {
-  let dialogName;
-  if (typeof dialogNameOrConfig === 'object') {
-    dialogName = dialogNameOrConfig.dialogName;
-    dataCreator = dialogNameOrConfig.dataCreator;
-    toKeepData = dialogNameOrConfig.toKeepData;
-  } else {
-    dialogName = dialogNameOrConfig;
+function getActionByDialogName(dialogName) {
+  switch (dialogName) {
+    case DialogName.DEV_TOOL_DIALOG:
+      return actions.openDevToolDialog;
+    case DialogName.EVENT_LOG_DIALOG:
+      return actions.openEventLogDialog;
+    case DialogName.INTRO_DIALOG:
+      return actions.openIntroDialog;
+    case DialogName.NODE_LIST_DIALOG:
+      return actions.openNodeListDialog;
+    case DialogName.PIPELINE_PROPERTY_DIALOG:
+      return actions.openPipelinePropertyDialog;
+    case DialogName.WORKSPACE_CREATION_DIALOG:
+      return actions.openWorkspaceCreationDialog;
+    case DialogName.WORKSPACE_DELETE_DIALOG:
+      return actions.openWorkspaceDeleteDialog;
+    case DialogName.WORKSPACE_LIST_DIALOG:
+      return actions.openWorkspaceListDialog;
+    case DialogName.WORKSPACE_RESTART_DIALOG:
+      return actions.openWorkspaceRestartDialog;
+    case DialogName.WORKSPACE_SETTINGS_DIALOG:
+      return actions.openWorkspaceSettingsDialog;
+    default:
+      return null;
   }
+}
 
+function useDialog(dialogName) {
   const dispatch = useDispatch();
-  const dialogState = useSelector((state) => state.ui.dialog[dialogName]);
-  const isDialogOpen = !!dialogState?.isOpen;
-  const dialogData = dialogState?.data;
+  const action = getActionByDialogName(dialogName);
+  const dialogState = useSelector((state) => state.ui.dialog[dialogName] || {});
+
   const openDialog = useCallback(
     (data) => {
-      const mergedData = toKeepData ? assign(dialogData, data) : data;
-      const finalData = dataCreator ? dataCreator(mergedData) : mergedData;
-      dispatch({
-        type: actions.openDialog.TRIGGER,
-        name: dialogName,
-        payload: finalData,
-      });
+      dispatch(action.trigger(data));
     },
-    [dialogName, dialogData, dataCreator, toKeepData, dispatch],
+    [action, dispatch],
   );
+
   const closeDialog = useCallback(() => {
-    const finalData = toKeepData ? dialogData : null;
-    dispatch({
-      type: actions.openDialog.FULFILL,
-      name: dialogName,
-      payload: finalData,
-    });
-  }, [dialogName, dialogData, toKeepData, dispatch]);
+    dispatch(action.fulfill());
+  }, [action, dispatch]);
+
+  const toggleDialog = useCallback(
+    (force) => {
+      const { isOpen, data } = dialogState;
+      if (force === true) {
+        dispatch(action.trigger(data));
+      } else if (force === false) {
+        dispatch(action.fulfill(data));
+      } else {
+        if (isOpen) {
+          dispatch(action.fulfill(data));
+        } else {
+          dispatch(action.trigger(data));
+        }
+      }
+    },
+    [action, dialogState, dispatch],
+  );
 
   return useMemo(
     () => ({
-      isOpen: isDialogOpen,
-      data: dialogData,
+      // open dialog and overwrite data
       open: openDialog,
+      // close dialog and clear data
       close: closeDialog,
-      toggle: (data) => (isDialogOpen ? closeDialog() : openDialog(data)),
+      // open or close dialog without clearing data
+      toggle: toggleDialog,
+      // dialog state
+      isOpen: dialogState?.isOpen,
+      // dialog state
+      data: dialogState?.data,
+      // dialog state
+      lastUpdated: dialogState?.lastUpdated,
     }),
-    [isDialogOpen, dialogData, openDialog, closeDialog],
+    [dialogState, openDialog, closeDialog, toggleDialog],
   );
-};
+}
 
-export const useDevToolDialog = () =>
-  useDialog({
-    dialogName: DialogName.DEV_TOOL_DIALOG,
-    dataCreator: (data) => {
-      if (!data?.tabName) {
-        // initialize the tab
-        return assign(data, { tabName: DevToolTabName.TOPIC });
-      }
-      return data;
-    },
-    toKeepData: true,
-  });
-
+export const useDevToolDialog = () => useDialog(DialogName.DEV_TOOL_DIALOG);
 export const useEventLogDialog = () => useDialog(DialogName.EVENT_LOG_DIALOG);
-
-export const useIntroDialog = () =>
-  useDialog({
-    dialogName: DialogName.INTRO_DIALOG,
-    dataCreator: (data) => assign(data, { hasBeenOpened: true }),
-    toKeepData: true,
-  });
+export const useIntroDialog = () => useDialog(DialogName.INTRO_DIALOG);
 export const useNodeListDialog = () => useDialog(DialogName.NODE_LIST_DIALOG);
-
 export const usePipelinePropertyDialog = () =>
   useDialog(DialogName.PIPELINE_PROPERTY_DIALOG);
-
+export const useWorkspaceCreationDialog = () =>
+  useDialog(DialogName.WORKSPACE_CREATION_DIALOG);
+export const useWorkspaceDeleteDialog = () =>
+  useDialog(DialogName.WORKSPACE_DELETE_DIALOG);
 export const useWorkspaceListDialog = () =>
   useDialog(DialogName.WORKSPACE_LIST_DIALOG);
-
+export const useWorkspaceRestartDialog = () =>
+  useDialog(DialogName.WORKSPACE_RESTART_DIALOG);
 export const useWorkspaceSettingsDialog = () =>
   useDialog(DialogName.WORKSPACE_SETTINGS_DIALOG);

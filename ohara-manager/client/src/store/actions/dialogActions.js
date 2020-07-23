@@ -15,5 +15,29 @@
  */
 
 import { createRoutine } from 'redux-routines';
+import { DialogName } from 'const';
 
 export const openDialog = createRoutine('OPEN_DIALOG');
+
+export const openDevToolDialog = createRoutine(DialogName.DEV_TOOL_DIALOG);
+export const openEventLogDialog = createRoutine(DialogName.EVENT_LOG_DIALOG);
+export const openIntroDialog = createRoutine(DialogName.INTRO_DIALOG);
+export const openNodeListDialog = createRoutine(DialogName.NODE_LIST_DIALOG);
+export const openPipelinePropertyDialog = createRoutine(
+  DialogName.PIPELINE_PROPERTY_DIALOG,
+);
+export const openWorkspaceCreationDialog = createRoutine(
+  DialogName.WORKSPACE_CREATION_DIALOG,
+);
+export const openWorkspaceDeleteDialog = createRoutine(
+  DialogName.WORKSPACE_DELETE_DIALOG,
+);
+export const openWorkspaceListDialog = createRoutine(
+  DialogName.WORKSPACE_LIST_DIALOG,
+);
+export const openWorkspaceRestartDialog = createRoutine(
+  DialogName.WORKSPACE_RESTART_DIALOG,
+);
+export const openWorkspaceSettingsDialog = createRoutine(
+  DialogName.WORKSPACE_SETTINGS_DIALOG,
+);

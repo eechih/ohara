@@ -122,7 +122,7 @@ const AppBar = () => {
               className="event-logs item"
               onClick={() => {
                 eventLogDialog.toggle();
-                devToolDialog.close();
+                devToolDialog.toggle(false);
                 // during clicking action, the event log dialog is still "opened"
                 // we should assert isOpen=true(which will close dialog later) and trigger the initEventLogs
                 if (eventLogDialog.isOpen) initEventLogs();
@@ -142,7 +142,7 @@ const AppBar = () => {
               className="developer-tools item"
               onClick={() => {
                 devToolDialog.toggle();
-                eventLogDialog.close();
+                eventLogDialog.toggle(false);
                 // We should initial event logs when clicking the devTool button
                 // since it will trigger close event log whether devTool opens or not
                 initEventLogs();

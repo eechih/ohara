@@ -15,42 +15,143 @@
  */
 
 import * as actions from 'store/actions';
+import { isEqual as isDeepEqual } from 'lodash';
+import { DialogName, DevToolTabName } from 'const';
 
-const initialState = {
+const initialDialogState = {
   isOpen: false,
   data: null,
+  lastUpdated: null,
 };
 
-function dialog(state = initialState, action) {
+const initialIntroDialogState = {
+  ...initialDialogState,
+  data: { tabName: DevToolTabName.TOPIC },
+};
+
+const initialState = {
+  [DialogName.DEV_TOOL_DIALOG]: initialIntroDialogState,
+  [DialogName.EVENT_LOG_DIALOG]: initialDialogState,
+  [DialogName.INTRO_DIALOG]: initialDialogState,
+  [DialogName.NODE_LIST_DIALOG]: initialDialogState,
+  [DialogName.PIPELINE_PROPERTY_DIALOG]: initialDialogState,
+  [DialogName.WORKSPACE_CREATION_DIALOG]: initialDialogState,
+  [DialogName.WORKSPACE_DELETE_DIALOG]: initialDialogState,
+  [DialogName.WORKSPACE_LIST_DIALOG]: initialDialogState,
+  [DialogName.WORKSPACE_RESTART_DIALOG]: initialDialogState,
+  [DialogName.WORKSPACE_SETTINGS_DIALOG]: initialDialogState,
+};
+
+// open the dialog
+function openDialog(state, action, dialogName) {
+  const dialogState = state[dialogName] || {};
+  const { isOpen, data } = dialogState;
+  const { payload: newData } = action;
+
+  if (isOpen && isDeepEqual(data, newData)) return state;
+
+  return {
+    ...state,
+    [dialogName]: {
+      ...dialogState,
+      isOpen: true,
+      data: newData,
+      lastUpdated: new Date(),
+    },
+  };
+}
+
+// close the dialog
+function closeDialog(state, action, dialogName) {
+  const dialogState = state[dialogName] || {};
+
+  if (!dialogState.isOpen) return state;
+
+  return {
+    ...state,
+    [dialogName]: {
+      ...dialogState,
+      isOpen: false,
+      data: action.payload,
+      lastUpdated: new Date(),
+    },
+  };
+}
+
+export default function reducer(state = initialState, action) {
   switch (action.type) {
-    case actions.openDialog.TRIGGER:
+    // toggle the devTool dialog
+    case actions.openDevToolDialog.TRIGGER:
+      return openDialog(state, action, DialogName.DEV_TOOL_DIALOG);
+    case actions.openDevToolDialog.FULFILL:
+      return closeDialog(state, action, DialogName.DEV_TOOL_DIALOG);
+
+    // toggle the eventLog dialog
+    case actions.openEventLogDialog.TRIGGER:
+      return openDialog(state, action, DialogName.EVENT_LOG_DIALOG);
+    case actions.openEventLogDialog.FULFILL:
+      return closeDialog(state, action, DialogName.EVENT_LOG_DIALOG);
+
+    // toggle the intro dialog
+    case actions.openIntroDialog.TRIGGER:
+      return openDialog(state, action, DialogName.INTRO_DIALOG);
+    case actions.openIntroDialog.FULFILL:
+      return closeDialog(state, action, DialogName.INTRO_DIALOG);
+
+    // toggle the node list dialog
+    case actions.openNodeListDialog.TRIGGER:
+      return openDialog(state, action, DialogName.NODE_LIST_DIALOG);
+    case actions.openNodeListDialog.FULFILL:
+      return closeDialog(state, action, DialogName.NODE_LIST_DIALOG);
+
+    // toggle the pipeline property dialog
+    case actions.openPipelinePropertyDialog.TRIGGER:
+      return openDialog(state, action, DialogName.PIPELINE_PROPERTY_DIALOG);
+    case actions.openPipelinePropertyDialog.FULFILL:
+      return closeDialog(state, action, DialogName.PIPELINE_PROPERTY_DIALOG);
+
+    // toggle the workspace creation dialog
+    case actions.openWorkspaceCreationDialog.TRIGGER:
+      return openDialog(state, action, DialogName.WORKSPACE_CREATION_DIALOG);
+    case actions.openWorkspaceCreationDialog.FULFILL:
+      return closeDialog(state, action, DialogName.WORKSPACE_CREATION_DIALOG);
+
+    // toggle the workspace delete dialog
+    case actions.openWorkspaceDeleteDialog.TRIGGER:
+      return openDialog(state, action, DialogName.WORKSPACE_DELETE_DIALOG);
+    case actions.openWorkspaceDeleteDialog.FULFILL:
+      return closeDialog(state, action, DialogName.WORKSPACE_DELETE_DIALOG);
+
+    // toggle the workspace list dialog
+    case actions.openWorkspaceListDialog.TRIGGER:
+      return openDialog(state, action, DialogName.WORKSPACE_LIST_DIALOG);
+    case actions.openWorkspaceListDialog.FULFILL:
+      return closeDialog(state, action, DialogName.WORKSPACE_LIST_DIALOG);
+
+    // toggle the workspace restart dialog
+    case actions.openWorkspaceRestartDialog.TRIGGER:
+      return openDialog(state, action, DialogName.WORKSPACE_RESTART_DIALOG);
+    case actions.openWorkspaceRestartDialog.FULFILL:
+      return closeDialog(state, action, DialogName.WORKSPACE_RESTART_DIALOG);
+
+    // toggle the workspace settings dialog
+    case actions.openWorkspaceSettingsDialog.TRIGGER:
+      return openDialog(state, action, DialogName.WORKSPACE_SETTINGS_DIALOG);
+    case actions.openWorkspaceSettingsDialog.FULFILL:
+      return closeDialog(state, action, DialogName.WORKSPACE_SETTINGS_DIALOG);
+
+    // after switching the workspace, all dialogs in the workspace should be closed
+    case actions.switchWorkspace.SUCCESS:
       return {
         ...state,
-        isOpen: true,
-        data: action.payload,
-      };
-    case actions.openDialog.FULFILL:
-      return {
-        ...state,
-        isOpen: false,
-        data: action.payload || null,
+        [DialogName.PIPELINE_PROPERTY_DIALOG]: initialDialogState,
+        [DialogName.WORKSPACE_CREATION_DIALOG]: initialDialogState,
+        [DialogName.WORKSPACE_DELETE_DIALOG]: initialDialogState,
+        [DialogName.WORKSPACE_RESTART_DIALOG]: initialDialogState,
+        [DialogName.WORKSPACE_SETTINGS_DIALOG]: initialDialogState,
       };
 
     default:
       return state;
   }
-}
-
-export default function reducer(state = {}, action) {
-  const { name, type } = action;
-  if (
-    name &&
-    (type === actions.openDialog.TRIGGER || type === actions.openDialog.FULFILL)
-  ) {
-    return {
-      ...state,
-      [name]: dialog(state[name], action),
-    };
-  }
-  return state;
 }

@@ -122,7 +122,10 @@ export enum DialogName {
   INTRO_DIALOG = 'introDialog',
   NODE_LIST_DIALOG = 'nodeListDialog',
   PIPELINE_PROPERTY_DIALOG = 'pipelinePropertyDialog',
+  WORKSPACE_CREATION_DIALOG = 'workspaceCreationDialog',
+  WORKSPACE_DELETE_DIALOG = 'workspaceDeleteDialog',
   WORKSPACE_LIST_DIALOG = 'workspaceListDialog',
+  WORKSPACE_RESTART_DIALOG = 'workspaceRestartDialog',
   WORKSPACE_SETTINGS_DIALOG = 'workspaceSettingsDialog',
 }
 

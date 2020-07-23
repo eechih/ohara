@@ -142,7 +142,7 @@ const Header = () => {
           <Tooltip title="Close this panel">
             <IconButton
               className="item"
-              onClick={devToolDialog.close}
+              onClick={() => devToolDialog.toggle(false)}
               size="small"
             >
               <CloseIcon />

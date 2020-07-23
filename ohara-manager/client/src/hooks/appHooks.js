@@ -15,10 +15,7 @@
  */
 
 import { useCallback, useEffect } from 'react';
-import { isEmpty } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-
-import * as hooks from 'hooks';
 import * as actions from 'store/actions';
 
 export const useIsAppReady = () =>
@@ -31,17 +28,4 @@ export const useInitializeApp = (workspaceName, pipelineName) => {
     if (isAppReady) return;
     dispatch(actions.initializeApp.trigger({ workspaceName, pipelineName }));
   }, [dispatch, isAppReady, pipelineName, workspaceName]);
-};
-
-export const useWelcome = () => {
-  const isAppReady = useIsAppReady();
-  const allWorkspaces = hooks.useAllWorkspaces();
-  const introDialog = hooks.useIntroDialog();
-  const hasIntroDialogBeenOpened = !!introDialog?.data?.hasBeenOpened;
-
-  useEffect(() => {
-    if (isAppReady && !hasIntroDialogBeenOpened && isEmpty(allWorkspaces)) {
-      introDialog.open();
-    }
-  }, [isAppReady, allWorkspaces, hasIntroDialogBeenOpened, introDialog]);
 };
