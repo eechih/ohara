@@ -16,7 +16,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { assign, isEqual } from 'lodash';
+import { assign } from 'lodash';
 import * as actions from 'store/actions';
 import { DialogName, DevToolTabName } from 'const';
 
@@ -35,10 +35,7 @@ const useDialog = (
   }
 
   const dispatch = useDispatch();
-  const dialogState = useSelector(
-    (state) => state.ui.dialog[dialogName],
-    isEqual,
-  );
+  const dialogState = useSelector((state) => state.ui.dialog[dialogName]);
   const isDialogOpen = !!dialogState?.isOpen;
   const dialogData = dialogState?.data;
   const openDialog = useCallback(
