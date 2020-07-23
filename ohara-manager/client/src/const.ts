@@ -129,6 +129,12 @@ export enum DialogName {
   WORKSPACE_SETTINGS_DIALOG = 'workspaceSettingsDialog',
 }
 
+export enum DialogToggleType {
+  NORMAL = 'normal',
+  FORCE_OPEN = 'open',
+  FORCE_CLOSE = 'close',
+}
+
 export enum DevToolTabName {
   TOPIC = 'TOPICS',
   LOG = 'LOGS',

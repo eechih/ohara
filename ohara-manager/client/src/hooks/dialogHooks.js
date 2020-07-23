@@ -17,7 +17,7 @@
 import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from 'store/actions';
-import { DialogName } from 'const';
+import { DialogName, DialogToggleType } from 'const';
 
 function getActionByDialogName(dialogName) {
   switch (dialogName) {
@@ -63,18 +63,14 @@ function useDialog(dialogName) {
   }, [action, dispatch]);
 
   const toggleDialog = useCallback(
-    (force) => {
+    (toggleType = DialogToggleType.NORMAL) => {
       const { isOpen, data } = dialogState;
-      if (force === true) {
+      if (toggleType === DialogToggleType.FORCE_OPEN) {
         dispatch(action.trigger(data));
-      } else if (force === false) {
+      } else if (toggleType === DialogToggleType.FORCE_CLOSE) {
         dispatch(action.fulfill(data));
       } else {
-        if (isOpen) {
-          dispatch(action.fulfill(data));
-        } else {
-          dispatch(action.trigger(data));
-        }
+        dispatch(isOpen ? action.fulfill(data) : action.trigger(data));
       }
     },
     [action, dialogState, dispatch],

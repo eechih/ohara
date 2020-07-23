@@ -22,7 +22,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Grid from '@material-ui/core/Grid';
 
-import { KIND, CELL_PROP } from 'const';
+import { KIND, CELL_PROP, DialogToggleType } from 'const';
 import * as hooks from 'hooks';
 import { Tooltip } from 'components/common/Tooltip';
 import { DevToolTabName } from 'const';
@@ -142,7 +142,7 @@ const Header = () => {
           <Tooltip title="Close this panel">
             <IconButton
               className="item"
-              onClick={() => devToolDialog.toggle(false)}
+              onClick={() => devToolDialog.toggle(DialogToggleType.FORCE_CLOSE)}
               size="small"
             >
               <CloseIcon />

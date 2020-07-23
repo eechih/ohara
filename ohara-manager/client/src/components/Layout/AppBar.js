@@ -28,6 +28,7 @@ import Link from '@material-ui/core/Link';
 import WarningIcon from '@material-ui/icons/Warning';
 
 import * as context from 'context';
+import { DialogToggleType } from 'const';
 import * as hooks from 'hooks';
 import { ReactComponent as Logo } from 'images/logo.svg';
 import { StyledAppBar } from './AppBarStyles';
@@ -110,7 +111,7 @@ const AppBar = () => {
               onClick={() =>
                 isEmpty(workspaces)
                   ? introDialog.open()
-                  : workspaceListDialog.toggle()
+                  : workspaceListDialog.open()
               }
             >
               <AppsIcon />
@@ -122,7 +123,7 @@ const AppBar = () => {
               className="event-logs item"
               onClick={() => {
                 eventLogDialog.toggle();
-                devToolDialog.toggle(false);
+                devToolDialog.close();
                 // during clicking action, the event log dialog is still "opened"
                 // we should assert isOpen=true(which will close dialog later) and trigger the initEventLogs
                 if (eventLogDialog.isOpen) initEventLogs();
@@ -141,8 +142,8 @@ const AppBar = () => {
             <IconButton
               className="developer-tools item"
               onClick={() => {
-                devToolDialog.toggle();
-                eventLogDialog.toggle(false);
+                eventLogDialog.toggle(DialogToggleType.FORCE_CLOSE);
+                devToolDialog.open();
                 // We should initial event logs when clicking the devTool button
                 // since it will trigger close event log whether devTool opens or not
                 initEventLogs();
