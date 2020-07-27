@@ -82,7 +82,7 @@ function useDialog(dialogName) {
       open: openDialog,
       // close dialog and clear data
       close: closeDialog,
-      // open or close dialog without clearing data
+      // open or close dialog without clearing the previous data
       toggle: toggleDialog,
       // dialog state
       isOpen: dialogState?.isOpen,

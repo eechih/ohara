@@ -24,13 +24,13 @@ const initialDialogState = {
   lastUpdated: null,
 };
 
-const initialIntroDialogState = {
+const initialDevToolDialogState = {
   ...initialDialogState,
   data: { tabName: DevToolTabName.TOPIC },
 };
 
 const initialState = {
-  [DialogName.DEV_TOOL_DIALOG]: initialIntroDialogState,
+  [DialogName.DEV_TOOL_DIALOG]: initialDevToolDialogState,
   [DialogName.EVENT_LOG_DIALOG]: initialDialogState,
   [DialogName.INTRO_DIALOG]: initialDialogState,
   [DialogName.NODE_LIST_DIALOG]: initialDialogState,
