@@ -92,8 +92,8 @@ it('start topic should run in two minutes', () => {
     };
 
     // start 6 times, get 6 times, retry 5 times
-    // => 100 * 6 + 100 * 6 + 2000 * 5 = 11200ms
-    const expected = '11200ms (v|)';
+    // => 100ms * 6 + 100ms * 6 + 31s = 32200ms
+    const expected = '32200ms (v|)';
 
     const output$ = startTopic(params, true);
 
