@@ -44,11 +44,10 @@ const initialState = {
 
 // open the dialog
 function openDialog(state, action, dialogName) {
-  const dialogState = state[dialogName] || {};
-  const { isOpen, data } = dialogState;
+  const dialogState = state[dialogName];
+  const { data, lastUpdated, isOpen } = dialogState || {};
   const { payload: newData } = action;
-
-  if (isOpen && isDeepEqual(data, newData)) return state;
+  if (lastUpdated && isOpen && isDeepEqual(data, newData)) return state;
 
   return {
     ...state,
@@ -63,9 +62,9 @@ function openDialog(state, action, dialogName) {
 
 // close the dialog
 function closeDialog(state, action, dialogName) {
-  const dialogState = state[dialogName] || {};
-
-  if (!dialogState.isOpen) return state;
+  const dialogState = state[dialogName];
+  const { lastUpdated, isOpen } = dialogState || {};
+  if (lastUpdated && !isOpen) return state;
 
   return {
     ...state,
