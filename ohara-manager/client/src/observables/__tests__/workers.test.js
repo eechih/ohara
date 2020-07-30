@@ -105,8 +105,6 @@ it('start worker should run in two minutes', () => {
 
     expect(spyStart).toHaveBeenCalled();
     expect(spyGet).toHaveBeenCalled();
-
-    // The mock function is called six times
     expect(spyStart.mock.calls.length).toBe(1);
     expect(spyGet.mock.calls.length).toBe(6);
   });
