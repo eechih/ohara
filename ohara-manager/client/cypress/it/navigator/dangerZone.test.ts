@@ -107,7 +107,7 @@ describe('Restart workspace', () => {
   });
 
   it('should show an restart indicator after adding node to zookeeper', () => {
-    cy.switchSettingSection(SettingSection.zookeeper);
+    cy.switchSettingSection(SettingSection.zookeeper, 'Zookeeper nodes');
 
     cy.get('div.section-page-content').within(() => {
       cy.findByTitle('Add Node').click();
@@ -225,7 +225,7 @@ describe('Restart workspace', () => {
 
   it('should be able to restart from indicator after adding node to zookeeper', () => {
     // add node to zookeeper
-    cy.switchSettingSection(SettingSection.zookeeper);
+    cy.switchSettingSection(SettingSection.zookeeper, 'Zookeeper nodes');
     cy.get('div.section-page-content').within(() => {
       cy.findByTitle('Add Node').click();
     });
@@ -310,7 +310,7 @@ describe('Restart workspace', () => {
       .should('be.visible')
       .click();
 
-    cy.switchSettingSection(SettingSection.zookeeper);
+    cy.switchSettingSection(SettingSection.zookeeper, 'Zookeeper nodes');
     cy.get('div.section-page-content').within(() => {
       cy.get('table')
         .should('have.length', 1)
@@ -323,7 +323,7 @@ describe('Restart workspace', () => {
 
   it('should be able to restart from indicator after adding node to broker', () => {
     // add node to zookeeper
-    cy.switchSettingSection(SettingSection.broker);
+    cy.switchSettingSection(SettingSection.broker, 'Broker nodes');
     cy.get('div.section-page-content').within(() => {
       cy.findByTitle('Add Node').click();
     });
@@ -400,7 +400,7 @@ describe('Restart workspace', () => {
     // close the snackbar
     cy.findByTestId('snackbar').find('button:visible').click();
 
-    cy.switchSettingSection(SettingSection.zookeeper);
+    cy.switchSettingSection(SettingSection.broker, 'Broker nodes');
     cy.get('div.section-page-content').within(() => {
       cy.get('table')
         .should('have.length', 1)
@@ -413,7 +413,7 @@ describe('Restart workspace', () => {
 
   it('should be able to restart from indicator after adding node to worker', () => {
     // add node to zookeeper
-    cy.switchSettingSection(SettingSection.worker);
+    cy.switchSettingSection(SettingSection.worker, 'Worker nodes');
     cy.get('div.section-page-content').within(() => {
       cy.findByTitle('Add Node').click();
     });
@@ -490,7 +490,7 @@ describe('Restart workspace', () => {
       .should('be.visible')
       .click();
 
-    cy.switchSettingSection(SettingSection.zookeeper);
+    cy.switchSettingSection(SettingSection.worker, 'Worker nodes');
     cy.get('div.section-page-content').within(() => {
       cy.get('table')
         .should('have.length', 1)
