@@ -36,7 +36,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 
 import AddIcon from '@material-ui/icons/Add';
-import CreateIcon from '@material-ui/icons/Create';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
 import { Actions, MuiTable as Table } from 'components/common/Table';
@@ -327,7 +326,7 @@ function NodeTable(props) {
           },
           {
             hidden: !options?.showCreateIcon,
-            icon: () => <CreateIcon />,
+            icon: () => <AddIcon />,
             isFreeAction: true,
             onClick: handleCreateIconClick,
             tooltip: 'Create Node',

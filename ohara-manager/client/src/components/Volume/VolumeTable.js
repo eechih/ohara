@@ -19,7 +19,6 @@ import PropTypes from 'prop-types';
 import { find, isEmpty, isFunction } from 'lodash';
 
 import AddIcon from '@material-ui/icons/Add';
-import CreateIcon from '@material-ui/icons/Create';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
 
 import { Actions, MuiTable as Table } from 'components/common/Table';
@@ -187,7 +186,7 @@ function VolumeTable(props) {
           },
           {
             hidden: !options?.showCreateIcon,
-            icon: () => <CreateIcon />,
+            icon: () => <AddIcon />,
             isFreeAction: true,
             onClick: handleCreateIconClick,
             tooltip: 'Create Volume',
