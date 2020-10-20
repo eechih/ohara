@@ -65,6 +65,7 @@ const validateVolumePath$ = (values) => {
       }),
       retryBackoff(RETRY_STRATEGY),
     ),
+    defer(() => volumeApi.remove(values)),
   ).pipe(
     concatAll(),
     last(),
