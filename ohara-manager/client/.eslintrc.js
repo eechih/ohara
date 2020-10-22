@@ -82,4 +82,25 @@ module.exports = {
       },
     },
   ],
+  overrides: [
+    {
+      files: ['./**/components/**/*.ts?(x)'],
+      rules: {
+        'react/prop-types': 'off',
+        '@typescript-eslint/no-use-before-define': 'warn',
+        '@typescript-eslint/explicit-module-boundary-types': 'warn',
+        '@typescript-eslint/no-unsafe-call': 'warn',
+        '@typescript-eslint/no-unsafe-return': 'warn',
+        '@typescript-eslint/no-unsafe-member-access': 'warn',
+        '@typescript-eslint/no-unsafe-assignment': 'warn',
+        '@typescript-eslint/restrict-template-expressions': 'warn',
+        '@typescript-eslint/unbound-method': 'warn',
+        '@typescript-eslint/no-floating-promises': 'warn',
+        '@typescript-eslint/explicit-function-return-type': 'warn',
+        '@typescript-eslint/no-var-requires': 'warn',
+        '@typescript-eslint/ban-ts-ignore': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+      },
+    },
+  ],
 };
