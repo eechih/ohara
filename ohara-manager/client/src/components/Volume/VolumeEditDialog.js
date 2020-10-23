@@ -116,7 +116,7 @@ VolumeEditDialog.propTypes = {
   volume: PropTypes.shape({
     name: PropTypes.string,
     path: PropTypes.string,
-    nodeNames: PropTypes.string,
+    nodeNames: PropTypes.arrayOf(PropTypes.string),
     tags: PropTypes.shape({
       displayName: PropTypes.string,
       usedBy: PropTypes.string,

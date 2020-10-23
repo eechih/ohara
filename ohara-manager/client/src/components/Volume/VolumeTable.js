@@ -16,7 +16,7 @@
 
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { find, isEmpty, isFunction } from 'lodash';
+import { find, isEmpty, isFunction, join } from 'lodash';
 
 import AddIcon from '@material-ui/icons/Add';
 import RefreshOutlinedIcon from '@material-ui/icons/RefreshOutlined';
@@ -212,8 +212,9 @@ function VolumeTable(props) {
           },
           {
             title: 'Nodes',
-            field: 'nodeNames',
-            type: 'array',
+            render: (volume) => {
+              return join(volume?.nodeNames, ', ');
+            },
           },
           {
             title: 'Used by',
@@ -260,7 +261,7 @@ VolumeTable.propTypes = {
     PropTypes.shape({
       name: PropTypes.string,
       path: PropTypes.string,
-      nodeNames: PropTypes.string,
+      nodeNames: PropTypes.arrayOf(PropTypes.string),
       tags: PropTypes.shape({
         displayName: PropTypes.string,
         usedBy: PropTypes.string,
