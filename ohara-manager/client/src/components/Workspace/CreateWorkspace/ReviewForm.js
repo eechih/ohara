@@ -62,7 +62,7 @@ const ReviewForm = (props) => {
                 )) || <div>{values?.workspace?.nodeNames?.[0]}</div>}
               </TableCell>
             </TableRow>
-            {values?.volume && (
+            {values?.volume?.enabled && (
               <TableRow>
                 <TableCell>Zookeeper volume</TableCell>
                 <TableCell>{`${values?.volume?.path}/zookeeper`}</TableCell>
@@ -75,7 +75,7 @@ const ReviewForm = (props) => {
                 {replace(values?.workspace?.nodeNames, /,/g, ', ')}
               </TableCell>
             </TableRow>
-            {values?.volume && (
+            {values?.volume?.enabled && (
               <TableRow>
                 <TableCell>Broker volume</TableCell>
                 <TableCell>{`${values?.volume?.path}/broker`}</TableCell>

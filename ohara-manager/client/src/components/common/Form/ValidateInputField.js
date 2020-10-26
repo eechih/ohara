@@ -16,10 +16,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { isObject } from 'lodash';
 import TextField from '@material-ui/core/TextField';
 import styled from 'styled-components';
-import { InputAdornment } from '@material-ui/core';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 
 const InputWrap = styled.div`
   position: relative;
@@ -35,10 +34,12 @@ const ValidateInputField = (props) => {
     input: { name, onChange, value, onBlur, ...restInput },
     width = '100%',
     helperText,
-    hasError,
     disabled,
+    meta: { touched, error },
     ...rest
   } = props;
+
+  const hasError = touched && !!error;
 
   return (
     <InputWrap>
@@ -46,16 +47,15 @@ const ValidateInputField = (props) => {
         {...rest}
         disabled={disabled}
         error={hasError}
-        helperText={helperText}
+        helperText={
+          hasError
+            ? isObject(error)
+              ? JSON.stringify(error)
+              : error
+            : helperText
+        }
         id={name}
-        InputProps={{
-          ...restInput,
-          endAdornment: (
-            <InputAdornment position="end">
-              {!disabled && !hasError && <CheckCircleIcon color="primary" />}
-            </InputAdornment>
-          ),
-        }}
+        InputProps={restInput}
         name={name}
         onBlur={() => onBlur(value)}
         onChange={onChange}

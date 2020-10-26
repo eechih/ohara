@@ -55,7 +55,7 @@ const CreateWorkspaceForm = (props) => {
       volumesState.filter((v) => v.tags.usedBy === KIND.zookeeper).length + 1;
     const bkVolumeLength =
       volumesState.filter((v) => v.tags.usedBy === KIND.broker).length + 1;
-    if (volume) {
+    if (volume?.enabled) {
       const { path } = volume;
       return {
         zkVolume: {

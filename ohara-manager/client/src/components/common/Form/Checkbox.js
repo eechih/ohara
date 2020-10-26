@@ -26,7 +26,7 @@ const InputWrap = styled.div`
 `;
 
 const MuiCheckbox = ({
-  input: { name, onChange, checked, ...restInput },
+  input: { name, onChange, value, ...restInput },
   label,
   testId,
   ...rest
@@ -38,7 +38,7 @@ const MuiCheckbox = ({
           <Checkbox
             data-testid={testId}
             {...rest}
-            checked={checked}
+            checked={value}
             color="primary"
             id={name}
             inputProps={restInput}
@@ -56,7 +56,7 @@ MuiCheckbox.propTypes = {
   input: PropTypes.shape({
     name: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
-    checked: PropTypes.bool.isRequired,
+    value: PropTypes.bool.isRequired,
   }).isRequired,
   meta: PropTypes.shape({
     touched: PropTypes.bool,

@@ -14,92 +14,74 @@
  * limitations under the License.
  */
 
-import React, { useState } from 'react';
+/* eslint-disable no-throw-literal */
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Field, reduxForm } from 'redux-form';
+import { connect } from 'react-redux';
+import { Field, reduxForm, formValueSelector } from 'redux-form';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-
-import validateVolumePath from './validateVolumePath';
-import * as hooks from 'hooks';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { Form } from 'const';
-import { ValidateInputField } from 'components/common/Form';
+import {
+  ValidateInputField,
+  Checkbox as CheckboxField,
+} from 'components/common/Form';
+import { validateVolumePath } from 'observables/volumes';
 
-const SetupVolumeForm = (props) => {
-  const { handleSubmit, previousStep, invalid, pristine, submitting } = props;
+const validate = (values) => {
+  const errors = {};
+  if (values.volume?.enabled && !values.volume?.path) {
+    errors.volume = { path: 'This is a required field' };
+  }
+  return errors;
+};
 
-  const [checked, setChecked] = useState(false);
-  const change = hooks.useReduxFormChangeAction();
-  const formValues = hooks.useReduxFormValues(Form.CREATE_WORKSPACE);
-  const validateVolumePathAction = hooks.useValidateVolumePathAction();
-  const validateVolumePathState = hooks.useValidateVolumePath();
+const asyncValidate = async (values) => {
+  const { workspace = {}, volume = {} } = values;
+  const { nodeNames } = workspace;
+  const { enabled, path } = volume;
 
-  const isValidate = () => {
-    if (!checked) {
-      return true;
+  if (enabled) {
+    try {
+      if (!path) throw 'This is a required field';
+      await validateVolumePath(path, nodeNames);
+    } catch (err) {
+      throw { volume: { path: err } };
     }
-    if (
-      validateVolumePathState?.isValidate &&
-      !validateVolumePathState?.validating
-    ) {
-      return true;
-    } else if (
-      !validateVolumePathState?.isValidate &&
-      !validateVolumePathState?.validating
-    ) {
-      return false;
-    }
-  };
+  }
+};
 
-  const helperText = () => {
-    if (!validateVolumePathState) {
-      return 'Please provide the path and we will create this folder on each node you select. Other service volumes will be placed under this path.';
-    }
-    if (validateVolumePathState.validating) {
-      return 'Validate Volume Path ...';
-    }
-    if (!isValidate()) {
-      return 'This volume path is illegal';
-    }
-    if (isValidate()) {
-      return 'This volume path is legitimate';
-    }
-  };
+const shouldAsyncValidate = ({ trigger }) => {
+  return trigger === 'submit';
+};
 
-  const handleCheck = () => {
-    if (checked) {
-      setChecked(false);
-      change(Form.CREATE_WORKSPACE, 'volume.path', undefined);
-    } else {
-      setChecked(true);
-    }
-  };
-
+let SetupVolumeForm = ({
+  asyncValidating,
+  handleSubmit,
+  previousStep,
+  invalid,
+  pristine,
+  submitting,
+  enabled,
+}) => {
   return (
     <form onSubmit={handleSubmit}>
       <Paper className="fields">
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={checked}
-              color="primary"
-              onChange={handleCheck}
-            />
-          }
+        <Field
+          component={CheckboxField}
+          disabled={!!asyncValidating}
           label="Enable volumes"
+          name="volume.enabled"
         />
         <Field
           component={ValidateInputField}
-          disabled={!checked}
-          hasError={!isValidate()}
-          helperText={helperText()}
+          disabled={!enabled || !!asyncValidating}
+          helperText="Please provide the path and we will create this folder on each node you select. Other service volumes will be placed under this path."
           id="workspaceVolume"
           label="Volume path"
           margin="normal"
           name="volume.path"
-          onBlur={validateVolumePath(validateVolumePathAction, formValues)}
           placeholder="/home/ohara/workspace1"
           type="text"
         />
@@ -108,11 +90,12 @@ const SetupVolumeForm = (props) => {
         <Button onClick={previousStep}>BACK</Button>
         <Button
           color="primary"
-          disabled={invalid || pristine || submitting || !isValidate()}
+          disabled={invalid || pristine || submitting || !!asyncValidating}
+          endIcon={asyncValidating ? <CircularProgress size={16} /> : null}
           type="submit"
           variant="contained"
         >
-          NEXT
+          {asyncValidating ? 'VALIDATING' : 'NEXT'}
         </Button>
       </div>
     </form>
@@ -120,15 +103,33 @@ const SetupVolumeForm = (props) => {
 };
 
 SetupVolumeForm.propTypes = {
+  asyncValidating: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.arrayOf(PropTypes.string),
+  ]),
   handleSubmit: PropTypes.func.isRequired,
   previousStep: PropTypes.func.isRequired,
   invalid: PropTypes.bool.isRequired,
   pristine: PropTypes.bool.isRequired,
   submitting: PropTypes.bool.isRequired,
+  enabled: PropTypes.bool,
 };
 
-export default reduxForm({
+SetupVolumeForm = reduxForm({
   form: Form.CREATE_WORKSPACE,
   destroyOnUnmount: false,
   forceUnregisterOnUnmount: true,
+  validate,
+  asyncValidate,
+  shouldAsyncValidate,
 })(SetupVolumeForm);
+
+const selector = formValueSelector(Form.CREATE_WORKSPACE);
+
+SetupVolumeForm = connect((state) => {
+  return {
+    enabled: selector(state, 'volume.enabled'),
+  };
+})(SetupVolumeForm);
+
+export default SetupVolumeForm;
