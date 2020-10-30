@@ -71,6 +71,13 @@ const VolumeCreateDialog = ({
     }
   };
 
+  const change = hooks.useReduxFormChangeAction();
+
+  // Initialize the value of the "usedBy" field
+  React.useEffect(() => {
+    change(Form.CREATE_VOLUME, 'usedBy', usedBy);
+  }, [change, usedBy]);
+
   return (
     <Dialog
       confirmDisabled={
