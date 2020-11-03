@@ -249,15 +249,13 @@ describe('App Bar', () => {
 
       // the log data should not be empty
       cy.findByTestId('view-log-list')
-        .findByRole('rowgroup')
-        .children('div')
+        .findAllByTestId('log')
         .should('have.length.greaterThan', 0);
 
       // refetch log
       cy.findByTitle('Fetch the data again').click();
       cy.findByTestId('view-log-list')
-        .findByRole('rowgroup')
-        .children('div')
+        .findAllByTestId('log')
         .should('have.length.greaterThan', 0);
 
       // query settings

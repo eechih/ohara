@@ -15,32 +15,18 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
-
 import * as hooks from 'hooks';
-import { VirtualizedList } from 'components/common/List';
+import LogViewer from 'components/common/LogViewer';
 import { useCurrentLogs } from 'components/DevTool/hooks';
-import { StyledLogDiv, StyledContent } from './ViewStyles';
-
-const rowRenderer = ({ rowData: log, style }) => {
-  return <StyledContent style={style}>{log}</StyledContent>;
-};
-rowRenderer.propTypes = {
-  rowData: PropTypes.object.isRequired,
-  style: PropTypes.object.isRequired,
-};
+import { StyledLogDiv } from './ViewStyles';
 
 const ViewLog = () => {
   const { isFetching } = hooks.useDevToolLog();
-  const currentLog = useCurrentLogs();
+  const logs = useCurrentLogs();
 
   return (
     <StyledLogDiv data-testid="view-log-list">
-      <VirtualizedList
-        data={currentLog}
-        isLoading={isFetching}
-        rowRenderer={rowRenderer}
-      />
+      <LogViewer loading={isFetching} logs={logs} />
     </StyledLogDiv>
   );
 };
