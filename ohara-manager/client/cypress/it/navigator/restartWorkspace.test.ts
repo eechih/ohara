@@ -542,7 +542,7 @@ describe('Restart workspace', () => {
     // Reset stab routes
     cy.server({ enable: false });
 
-    cy.findByText('35%');
+    cy.findByText('15%');
 
     cy.request('PUT', 'api/workers/workspace1/start?group=worker');
 

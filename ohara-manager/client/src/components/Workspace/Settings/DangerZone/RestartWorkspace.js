@@ -15,7 +15,6 @@
  */
 
 import React from 'react';
-import { get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -47,15 +46,7 @@ const RestartWorkspace = (props) => {
   const refreshWorkerAction = hooks.useFetchWorkerAction();
   const refreshNodeAction = hooks.useFetchNodesAction();
   const updateWorkspace = hooks.useUpdateWorkspaceAction();
-  const createVolumeAction = hooks.useCreateVolumeAction();
-  const startVolumeAction = hooks.useStartVolumeAction();
-  const stopVolumeAction = hooks.useStopVolumeAction();
-  const deleteVolumeAction = hooks.useDeleteVolumeAction();
-  const updateVolumeAction = hooks.useUpdateVolumeAction();
 
-  const volumes = hooks.useVolumes();
-  const zVolumes = hooks.useVolumesByUsedZookeeper();
-  const bVolumes = hooks.useVolumesByUsedBroker();
   const worker = hooks.useWorker();
   const broker = hooks.useBroker();
   const zookeeper = hooks.useZookeeper();
@@ -68,65 +59,6 @@ const RestartWorkspace = (props) => {
         updateWorkspace({ ...workspace, flag: WorkspaceFlag.RESTARTING }),
       revertAction: () =>
         updateWorkspace({ ...workspace, flag: WorkspaceFlag.RESTARTED }),
-    };
-
-    const createVolume = {
-      name: 'create volume',
-      action: () =>
-        Promise.all(
-          get(workspace, 'volumes', []).map((volume) =>
-            createVolumeAction(volume),
-          ),
-        ),
-      revertAction: () =>
-        Promise.all(
-          get(workspace, 'volumes', []).map((volume) =>
-            deleteVolumeAction(volume),
-          ),
-        ),
-    };
-    const stopVolume = {
-      name: 'stop volume',
-      action: () =>
-        Promise.all(
-          get(workspace, 'volumes', []).map((volume) =>
-            stopVolumeAction(volume),
-          ),
-        ),
-      revertAction: () =>
-        Promise.all(
-          get(workspace, 'volumes', []).map((volume) =>
-            startVolumeAction(volume),
-          ),
-        ),
-    };
-    const updateVolume = {
-      name: 'update volume',
-      action: () =>
-        Promise.all(
-          get(workspace, 'volumes', []).map((volume) =>
-            updateVolumeAction(volume),
-          ),
-        ),
-      revertAction: () =>
-        Promise.all(
-          get(volumes, '', []).map((volume) => updateVolumeAction(volume)),
-        ),
-    };
-    const startVolume = {
-      name: 'start volume',
-      action: () =>
-        Promise.all(
-          get(workspace, 'volumes', []).map((volume) =>
-            startVolumeAction(volume),
-          ),
-        ),
-      revertAction: () =>
-        Promise.all(
-          get(workspace, 'volumes', []).map((volume) =>
-            stopVolumeAction(volume),
-          ),
-        ),
     };
     const stopWorker = {
       name: 'stop worker',
@@ -157,11 +89,6 @@ const RestartWorkspace = (props) => {
       action: () =>
         updateBrokerAction({
           ...workspace.broker,
-          'log.dirs': [
-            ...bVolumes.map((zv) => {
-              return { name: zv.name, group: zv.group };
-            }),
-          ],
           tags: omit(broker, ['tags']),
         }),
       revertAction: () => updateBrokerAction({ ...broker }),
@@ -176,7 +103,6 @@ const RestartWorkspace = (props) => {
       action: () =>
         updateZookeeperAction({
           ...workspace.zookeeper,
-          dataDir: !isEmpty(zVolumes) ? zVolumes[0] : null,
           tags: omit(zookeeper, ['tags']),
         }),
       revertAction: () => updateZookeeperAction({ ...zookeeper }),
@@ -209,7 +135,6 @@ const RestartWorkspace = (props) => {
 
           updateWorkspace({
             ...workspace,
-            volumes: [],
             flag: WorkspaceFlag.RESTARTED,
           });
 
@@ -241,10 +166,6 @@ const RestartWorkspace = (props) => {
       case KIND.broker:
         return [
           prepare,
-          createVolume,
-          stopVolume,
-          updateVolume,
-          startVolume,
           stopWorker,
           updateWorker,
           stopTopic,
@@ -259,10 +180,6 @@ const RestartWorkspace = (props) => {
       default:
         return [
           prepare,
-          createVolume,
-          stopVolume,
-          updateVolume,
-          startVolume,
           stopWorker,
           updateWorker,
           stopTopic,

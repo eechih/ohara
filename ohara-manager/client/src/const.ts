@@ -82,8 +82,6 @@ export enum GROUP {
 
 export enum Form {
   CREATE_WORKSPACE = 'createWorkspace',
-  CREATE_VOLUME = 'createVolume',
-  EDIT_VOLUME = 'editVolume',
 }
 
 export enum LOG_LEVEL {
