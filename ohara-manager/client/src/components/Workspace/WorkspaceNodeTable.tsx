@@ -144,6 +144,7 @@ const WorkspaceNodeTable: React.FC<WorkspaceNodeTableProps> = ({
               const clusterKeys = getAllClusterKeysByWorkspaceName(
                 node,
                 workspaceName,
+                true,
               );
               const serviceKinds: string[] = map(clusterKeys, 'group').sort();
               return map(serviceKinds, (serviceKind: string) => (

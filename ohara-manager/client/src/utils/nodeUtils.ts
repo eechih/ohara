@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { flatMap, filter, size } from 'lodash';
+import { flatMap, filter, size, uniqWith, isEqual } from 'lodash';
 import { KIND } from 'const';
 import { Node, Key } from 'types';
 
@@ -28,15 +28,17 @@ export const getServiceCountOfNode = (node: Node): number => {
   return count;
 };
 
-export const getAllClusterKeys = (node: Node): Key[] => {
-  return flatMap(node?.services, (service) => service.clusterKeys);
+export const getAllClusterKeys = (node: Node, unique = false): Key[] => {
+  const keys = flatMap(node?.services, (service) => service.clusterKeys);
+  return unique ? uniqWith(keys, isEqual) : keys;
 };
 
 export const getAllClusterKeysByWorkspaceName = (
   node: Node,
   workspaceName: string,
+  unique = false,
 ): Key[] => {
-  return getAllClusterKeys(node).filter((key) => {
+  return getAllClusterKeys(node, unique).filter((key) => {
     return key.name === workspaceName;
   });
 };
