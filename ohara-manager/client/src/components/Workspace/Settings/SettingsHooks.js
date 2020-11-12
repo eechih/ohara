@@ -36,9 +36,9 @@ import StreamJarsPage from './pages/StreamJarsPage';
 import TopicPage from './pages/TopicPage';
 import WorkerPluginsPage from './pages/WorkerPluginsPage';
 import WorkspaceFilesPage from './pages/WorkspaceFilesPage';
-import WorkspaceNodesPage from './pages/WorkspaceNodesPage';
 import BrokerNodesAndVolumes from 'components/broker/BrokerNodesAndVolumes';
 import WorkerNodes from 'components/worker/WorkerNodes';
+import WorkspaceNodes from 'components/Workspace/WorkspaceNodes';
 
 /*
     Available props for component
@@ -242,7 +242,7 @@ export const useConfig = ({
           subTitle: 'Nodes in this workspace',
           type: SETTINGS_COMPONENT_TYPE.PAGE,
           componentProps: {
-            children: <WorkspaceNodesPage />,
+            children: <WorkspaceNodes />,
           },
         },
       ],

@@ -16,7 +16,7 @@
 
 import { flatMap, filter, size } from 'lodash';
 import { KIND } from 'const';
-import { Node } from 'types';
+import { Node, Key } from 'types';
 
 export const getServiceCountOfNode = (node: Node): number => {
   const services = filter(
@@ -26,4 +26,17 @@ export const getServiceCountOfNode = (node: Node): number => {
   const clusters = flatMap(services, (service) => service.clusterKeys);
   const count = size(clusters);
   return count;
+};
+
+export const getAllClusterKeys = (node: Node): Key[] => {
+  return flatMap(node?.services, (service) => service.clusterKeys);
+};
+
+export const getAllClusterKeysByWorkspaceName = (
+  node: Node,
+  workspaceName: string,
+): Key[] => {
+  return getAllClusterKeys(node).filter((key) => {
+    return key.name === workspaceName;
+  });
 };

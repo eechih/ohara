@@ -523,11 +523,11 @@ describe('Navigator', () => {
       // there should have one node
       cy.get('div.section-page-content').within(() => {
         cy.get('tbody tr').should('have.length', 1);
-        cy.get('tbody tr').contains('td', node.hostname);
+        cy.findByText(node.hostname).should('be.visible');
         cy.get('tbody tr')
           .children('td')
           // the "Used" column
-          .eq(4)
+          .eq(3)
           .invoke('html')
           .should(
             'equal',
