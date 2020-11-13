@@ -82,30 +82,25 @@ describe('Restart workspace', () => {
     // Add node into workspace
     cy.switchSettingSection(SettingSection.nodes);
     cy.get('.section-page-content').within(() => {
-      cy.findByTitle('Add Node').click();
+      cy.findByTitle('Add node').click();
     });
 
     cy.findVisibleDialog().within(() => {
-      cy.get('table')
-        .should('have.length', 1)
-        .within(($table) => {
-          // Check the node info and select it
-          cy.getTableCellByColumn($table, 'Hostname', node.hostname)
-            .should('exist')
-            .siblings('td')
-            .first()
-            .find('input[type="checkbox"]')
-            .click();
-        });
-
-      cy.findByText('SAVE').click();
+      cy.get('#mui-component-select-nodeName').click();
     });
+
+    cy.get('#menu-nodeName')
+      .should('be.visible')
+      .findByText(node.hostname)
+      .click();
+
+    cy.findVisibleDialog().findByText('ADD').click();
 
     cy.get('.section-page-content').within(() => {
       cy.findByText(node.hostname)
         .should('exist')
         .siblings('td')
-        .eq(3) // The "Used" column
+        .eq(2) // The "Used" column
         .invoke('html')
         .should('be.empty'); // There is no service assigned to this node yet
     });
