@@ -15,26 +15,29 @@
  */
 
 import { useQuery, QueryResult } from 'react-query';
-import { get } from 'api/workerApi';
-import { Worker, Key } from 'types';
+import { get } from 'api/zookeeperApi';
+import { Zookeeper, Key } from 'types';
 import { KIND } from 'const';
 
-function getWorker(_: Record<string, never>, key: Key): Promise<Worker> {
+function getZookeeper(
+  _: Record<string, unknown>,
+  key: Key,
+): Promise<Zookeeper> {
   return get(key).then((res) => res.data);
 }
 
-export default function useWorker(
+export default function useZookeeper(
   nameOrKey: string | Key,
   config?: Record<string, any>,
-): QueryResult<Worker> {
+): QueryResult<Zookeeper> {
   let key: Key;
   if (typeof nameOrKey === 'string') {
-    key = { name: nameOrKey, group: KIND.worker };
+    key = { name: nameOrKey, group: KIND.zookeeper };
   } else {
     key = nameOrKey;
   }
 
-  return useQuery(['worker', key], getWorker, {
+  return useQuery(['zookeeper', key], getZookeeper, {
     enabled: !!key,
     ...config,
   });

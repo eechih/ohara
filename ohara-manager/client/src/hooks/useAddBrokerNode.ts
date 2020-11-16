@@ -16,6 +16,7 @@
 
 import { queryCache, useMutation, MutationResultPair } from 'react-query';
 import { addNode } from 'api/brokerApi';
+import { KIND } from 'const';
 
 function addBrokerNode(
   variables: Record<string, any>,
@@ -24,7 +25,7 @@ function addBrokerNode(
   return addNode(
     {
       name,
-      group: 'broker',
+      group: KIND.broker,
     },
     nodeName,
   );
@@ -37,8 +38,11 @@ export default function useAddBrokerNode(): MutationResultPair<
   null
 > {
   return useMutation(addBrokerNode, {
-    onSuccess: async (_, variables) => {
-      await queryCache.invalidateQueries(['broker', variables.name]);
+    onSuccess: async (broker) => {
+      await queryCache.invalidateQueries([
+        'broker',
+        { name: broker.name, group: broker.group },
+      ]);
       queryCache.invalidateQueries('volumes');
     },
   });

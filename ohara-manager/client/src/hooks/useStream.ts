@@ -15,26 +15,26 @@
  */
 
 import { useQuery, QueryResult } from 'react-query';
-import { get } from 'api/workerApi';
-import { Worker, Key } from 'types';
+import { get } from 'api/streamApi';
+import { Stream, Key } from 'types';
 import { KIND } from 'const';
 
-function getWorker(_: Record<string, never>, key: Key): Promise<Worker> {
+function getStream(_: Record<string, unknown>, key: Key): Promise<Stream> {
   return get(key).then((res) => res.data);
 }
 
-export default function useWorker(
+export default function useStream(
   nameOrKey: string | Key,
   config?: Record<string, any>,
-): QueryResult<Worker> {
+): QueryResult<Stream> {
   let key: Key;
   if (typeof nameOrKey === 'string') {
-    key = { name: nameOrKey, group: KIND.worker };
+    key = { name: nameOrKey, group: KIND.stream };
   } else {
     key = nameOrKey;
   }
 
-  return useQuery(['worker', key], getWorker, {
+  return useQuery(['stream', key], getStream, {
     enabled: !!key,
     ...config,
   });

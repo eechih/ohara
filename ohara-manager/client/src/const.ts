@@ -97,8 +97,9 @@ export enum LOG_TIME_GROUP {
 
 export enum ServiceName {
   BROKER = 'broker',
-  WORKER = 'connect-worker',
+  SHABONDI = 'shabondi',
   STREAM = 'stream',
+  WORKER = 'connect-worker',
   ZOOKEEPER = 'zookeeper',
   CONFIGURATOR = 'configurator',
 }

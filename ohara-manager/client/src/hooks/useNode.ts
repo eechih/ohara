@@ -15,27 +15,19 @@
  */
 
 import { useQuery, QueryResult } from 'react-query';
-import { get } from 'api/workerApi';
-import { Worker, Key } from 'types';
-import { KIND } from 'const';
+import { get } from 'api/nodeApi';
+import { Node } from 'types';
 
-function getWorker(_: Record<string, never>, key: Key): Promise<Worker> {
-  return get(key).then((res) => res.data);
+function getNode(_: Record<string, unknown>, hostname: string): Promise<Node> {
+  return get(hostname).then((res) => res.data);
 }
 
-export default function useWorker(
-  nameOrKey: string | Key,
+export default function useNode(
+  hostname: string,
   config?: Record<string, any>,
-): QueryResult<Worker> {
-  let key: Key;
-  if (typeof nameOrKey === 'string') {
-    key = { name: nameOrKey, group: KIND.worker };
-  } else {
-    key = nameOrKey;
-  }
-
-  return useQuery(['worker', key], getWorker, {
-    enabled: !!key,
+): QueryResult<Node> {
+  return useQuery(['node', hostname], getNode, {
+    enabled: !!hostname,
     ...config,
   });
 }

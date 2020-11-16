@@ -20,9 +20,13 @@ import { merge, flatMap, find, map, sortBy } from 'lodash';
 import { GROUP, ServiceName } from 'const';
 import Table from 'components/common/Table/MuiTable';
 import ClusterStateChip from './ClusterStateChip';
+import useNode from 'hooks/useNode';
 
-function NodeServiceTable({ node }) {
-  if (!node) return null;
+// Refetch every 5 seconds
+const refetchInterval = 5000;
+
+function NodeServiceTable({ hostname }) {
+  const { data: node } = useNode(hostname, { refetchInterval });
 
   const flatClusters = flatMap(node?.services, (service) => {
     const { name, clusterKeys, clusters } = service;
@@ -57,7 +61,12 @@ function NodeServiceTable({ node }) {
         {
           title: 'State',
           field: 'state',
-          render: (cluster) => <ClusterStateChip cluster={cluster} />,
+          render: (cluster) => (
+            <ClusterStateChip
+              clusterKey={{ group: cluster.group, name: cluster.name }}
+              serviceName={cluster.serviceName}
+            />
+          ),
         },
       ]}
       data={sortBy(flatClusters, 'workspaceName')}
@@ -73,26 +82,7 @@ function NodeServiceTable({ node }) {
 }
 
 NodeServiceTable.propTypes = {
-  node: PropTypes.shape({
-    services: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.string,
-        clusterKeys: PropTypes.arrayOf(
-          PropTypes.shape({
-            group: PropTypes.string,
-            name: PropTypes.string,
-          }),
-        ),
-        clusters: PropTypes.arrayOf(
-          PropTypes.shape({
-            group: PropTypes.string,
-            name: PropTypes.string,
-            state: PropTypes.string,
-          }),
-        ),
-      }),
-    ),
-  }),
+  hostname: PropTypes.string.isRequired,
 };
 
 export default NodeServiceTable;

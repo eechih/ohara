@@ -15,26 +15,26 @@
  */
 
 import { useQuery, QueryResult } from 'react-query';
-import { get } from 'api/workerApi';
-import { Worker, Key } from 'types';
+import { get } from 'api/shabondiApi';
+import { Shabondi, Key } from 'types';
 import { KIND } from 'const';
 
-function getWorker(_: Record<string, never>, key: Key): Promise<Worker> {
+function getShabondi(_: Record<string, unknown>, key: Key): Promise<Shabondi> {
   return get(key).then((res) => res.data);
 }
 
-export default function useWorker(
+export default function useShabondi(
   nameOrKey: string | Key,
   config?: Record<string, any>,
-): QueryResult<Worker> {
+): QueryResult<Shabondi> {
   let key: Key;
   if (typeof nameOrKey === 'string') {
-    key = { name: nameOrKey, group: KIND.worker };
+    key = { name: nameOrKey, group: KIND.shabondi };
   } else {
     key = nameOrKey;
   }
 
-  return useQuery(['worker', key], getWorker, {
+  return useQuery(['shabondi', key], getShabondi, {
     enabled: !!key,
     ...config,
   });

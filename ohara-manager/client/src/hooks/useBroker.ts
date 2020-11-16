@@ -17,21 +17,25 @@
 import { useQuery, QueryResult } from 'react-query';
 import { get } from 'api/brokerApi';
 import { Broker, Key } from 'types';
+import { KIND } from 'const';
 
-function getBroker(_: Record<string, unknown>, name: string): Promise<Broker> {
-  const key: Key = {
-    name,
-    group: 'broker',
-  };
+function getBroker(_: Record<string, unknown>, key: Key): Promise<Broker> {
   return get(key).then((res) => res.data);
 }
 
 export default function useBroker(
-  name: string,
+  nameOrKey: string | Key,
   config?: Record<string, any>,
 ): QueryResult<Broker> {
-  return useQuery(['broker', name], getBroker, {
-    enabled: !!name,
+  let key: Key;
+  if (typeof nameOrKey === 'string') {
+    key = { name: nameOrKey, group: KIND.broker };
+  } else {
+    key = nameOrKey;
+  }
+
+  return useQuery(['broker', key], getBroker, {
+    enabled: !!key,
     ...config,
   });
 }

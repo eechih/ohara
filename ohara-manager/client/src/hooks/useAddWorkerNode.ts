@@ -16,6 +16,7 @@
 
 import { queryCache, useMutation, MutationResultPair } from 'react-query';
 import { addNode } from 'api/workerApi';
+import { KIND } from 'const';
 
 function addWorkerNode(
   variables: Record<string, any>,
@@ -24,7 +25,7 @@ function addWorkerNode(
   return addNode(
     {
       name,
-      group: 'worker',
+      group: KIND.worker,
     },
     nodeName,
   );
@@ -37,8 +38,11 @@ export default function useAddWorkerNode(): MutationResultPair<
   null
 > {
   return useMutation(addWorkerNode, {
-    onSuccess: async (_, variables) => {
-      await queryCache.invalidateQueries(['worker', variables.name]);
+    onSuccess: async (worker) => {
+      await queryCache.invalidateQueries([
+        'worker',
+        { name: worker.name, group: worker.group },
+      ]);
     },
   });
 }

@@ -32,10 +32,10 @@ function NodeDetailDialog({ node, isOpen, onClose }) {
     >
       <Grid container spacing={3}>
         <Grid item md={4} xs={12}>
-          {node && <NodeInfoTable node={node} />}
+          {node && <NodeInfoTable hostname={node?.hostname} />}
         </Grid>
         <Grid item md={8} xs={12}>
-          {node && <NodeServiceTable node={node} />}
+          {node && <NodeServiceTable hostname={node?.hostname} />}
         </Grid>
       </Grid>
     </Dialog>

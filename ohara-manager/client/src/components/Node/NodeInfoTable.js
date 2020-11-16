@@ -15,7 +15,7 @@
  */
 
 import PropTypes from 'prop-types';
-import { map, round } from 'lodash';
+import { map } from 'lodash';
 
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -26,10 +26,15 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 
+import useNode from 'hooks/useNode';
+import ResourceBarChart from 'components/common/ResourceBarChart';
 import NodeStateChip from './NodeStateChip';
 
-function NodeInfoTable({ node }) {
-  if (!node) return null;
+// Refetch every 5 seconds
+const refetchInterval = 5000;
+
+function NodeInfoTable({ hostname }) {
+  const { data: node } = useNode(hostname, { refetchInterval });
 
   return (
     <Card>
@@ -58,11 +63,7 @@ function NodeInfoTable({ node }) {
               <TableRow key={resource.name}>
                 <TableCell>{resource.name}</TableCell>
                 <TableCell>
-                  {resource.used &&
-                    `${round(resource.value * resource.used, 1)} ${
-                      resource.unit
-                    } / `}
-                  {`${round(resource.value, 1)} ${resource.unit}`}
+                  <ResourceBarChart resource={resource} />
                 </TableCell>
               </TableRow>
             ))}
@@ -80,21 +81,7 @@ function NodeInfoTable({ node }) {
 }
 
 NodeInfoTable.propTypes = {
-  node: PropTypes.shape({
-    hostname: PropTypes.string,
-    port: PropTypes.number,
-    user: PropTypes.string,
-    password: PropTypes.string,
-    resources: PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.string,
-        unit: PropTypes.string,
-        used: PropTypes.number,
-        value: PropTypes.number,
-      }),
-    ),
-    state: PropTypes.string,
-  }).isRequired,
+  hostname: PropTypes.string.isRequired,
 };
 
 export default NodeInfoTable;

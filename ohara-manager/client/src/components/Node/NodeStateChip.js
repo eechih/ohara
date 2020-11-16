@@ -64,7 +64,7 @@ NodeStateChip.propTypes = {
   node: PropTypes.shape({
     error: PropTypes.string,
     state: PropTypes.string,
-  }).isRequired,
+  }),
 };
 
 NodeStateChip.defaultProps = {
